@@ -1,11 +1,13 @@
 import { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Heart, Activity, Check, RefreshCw } from 'lucide-react';
+import { Heart, Activity, Check } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { CaregiverNav } from '@/components/caregiver/CaregiverNav';
 import { CaregiverSettingsDropdown } from '@/components/caregiver/CaregiverSettingsDropdown';
 import { PatientProfileModal } from '@/components/caregiver/PatientProfileModal';
+import { PatientSummaryCard } from '@/components/caregiver/PatientSummaryCard';
+import { InactivityAlert } from '@/components/caregiver/InactivityAlert';
 import { supabase } from '@/integrations/supabase/client';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import puppy3dSmiling from '@/assets/puppy-3d-smiling.png';
@@ -173,12 +175,25 @@ function CaregiverDashboardContent() {
           </div>
         </motion.div>
 
-        {/* Patient Profile Button */}
+        {/* Inactivity Alert */}
+        <InactivityAlert stepCount={elderlyProfile.stepCount} />
+
+        {/* Patient Summary Card - Direct view (not popup) */}
         <motion.div
           className="mb-6"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05 }}
+        >
+          <PatientSummaryCard />
+        </motion.div>
+
+        {/* Patient Profile Button for detailed editing */}
+        <motion.div
+          className="mb-6"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.08 }}
         >
           <PatientProfileModal />
         </motion.div>
