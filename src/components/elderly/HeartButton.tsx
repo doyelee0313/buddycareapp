@@ -93,23 +93,10 @@ export function HeartButton({ onSend, caregiverName }: HeartButtonProps) {
         )}
       </AnimatePresence>
 
-      {/* Button with explanation */}
-      <div className="fixed bottom-24 right-4 z-40 flex flex-col items-end gap-2">
-        {/* Explanation text */}
-        <motion.div
-          className="bg-card/95 backdrop-blur-sm rounded-2xl px-4 py-2 shadow-lg max-w-[180px]"
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.5 }}
-        >
-          <p className="text-sm font-medium text-foreground leading-tight">
-            Tap to send love to {caregiverName} 💕
-          </p>
-        </motion.div>
-
-        {/* Heart button */}
+      {/* Heart button with translucent label */}
+      <div className="fixed bottom-24 right-4 z-40 flex flex-col items-center">
         <motion.button
-          className="heart-button w-18 h-18 flex items-center justify-center"
+          className="heart-button w-18 h-18 flex flex-col items-center justify-center relative"
           onClick={handleClick}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
@@ -119,6 +106,10 @@ export function HeartButton({ onSend, caregiverName }: HeartButtonProps) {
         >
           <Heart className="w-9 h-9 fill-current" />
         </motion.button>
+        {/* Translucent text below button */}
+        <p className="text-xs text-muted-foreground/60 mt-1 text-center whitespace-nowrap">
+          Send love 💕
+        </p>
       </div>
     </>
   );
