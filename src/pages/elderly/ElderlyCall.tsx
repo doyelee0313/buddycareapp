@@ -3,8 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Video, Phone, ArrowLeft, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
-export default function ElderlyCall() {
+function ElderlyCallContent() {
   const navigate = useNavigate();
   const { caregiverProfile } = useApp();
   const [isCalling, setIsCalling] = useState(false);
@@ -153,5 +154,13 @@ export default function ElderlyCall() {
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+export default function ElderlyCall() {
+  return (
+    <ProtectedRoute requiredUserType="elderly">
+      <ElderlyCallContent />
+    </ProtectedRoute>
   );
 }

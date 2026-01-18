@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useApp } from '@/contexts/AppContext';
 import { CaregiverNav } from '@/components/caregiver/CaregiverNav';
 import { supabase } from '@/integrations/supabase/client';
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
 interface DbConversation {
   id: string;
@@ -29,7 +30,7 @@ const emotionLabels: Record<string, string> = {
   anxious: '😟 Anxious',
 };
 
-export default function CaregiverLogs() {
+function CaregiverLogsContent() {
   const { elderlyProfile } = useApp();
   const [dbConversations, setDbConversations] = useState<DbConversation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -225,5 +226,13 @@ export default function CaregiverLogs() {
 
       <CaregiverNav />
     </div>
+  );
+}
+
+export default function CaregiverLogs() {
+  return (
+    <ProtectedRoute requiredUserType="caregiver">
+      <CaregiverLogsContent />
+    </ProtectedRoute>
   );
 }

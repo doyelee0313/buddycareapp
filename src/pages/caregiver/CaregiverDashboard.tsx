@@ -2,13 +2,16 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Heart, Activity, Check } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { CaregiverNav } from '@/components/caregiver/CaregiverNav';
 import { supabase } from '@/integrations/supabase/client';
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import puppy3dHappy from '@/assets/puppy-3d-happy.png';
 import puppy3dSleepy from '@/assets/puppy-3d-sleepy.png';
 
-export default function CaregiverDashboard() {
+function CaregiverDashboardContent() {
   const { elderlyProfile, heartNotifications } = useApp();
+  const { profile } = useAuth();
   const [dbHeartCount, setDbHeartCount] = useState(0);
   const [dbMissionCompletions, setDbMissionCompletions] = useState<string[]>([]);
   
@@ -227,5 +230,13 @@ export default function CaregiverDashboard() {
 
       <CaregiverNav />
     </div>
+  );
+}
+
+export default function CaregiverDashboard() {
+  return (
+    <ProtectedRoute requiredUserType="caregiver">
+      <CaregiverDashboardContent />
+    </ProtectedRoute>
   );
 }

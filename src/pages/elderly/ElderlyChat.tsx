@@ -3,15 +3,18 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Mic, MicOff, ArrowLeft, Send } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 import { supabase } from '@/integrations/supabase/client';
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import puppy3dFace from '@/assets/puppy-3d-face.png';
 import { ConversationMessage } from '@/types/app';
 import { toast } from 'sonner';
 
-export default function ElderlyChat() {
+function ElderlyChatContent() {
   const navigate = useNavigate();
   const { conversations, addConversation, elderlyProfile } = useApp();
+  const { user } = useAuth();
   const [currentTranscript, setCurrentTranscript] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -81,7 +84,7 @@ export default function ElderlyChat() {
       const { data, error } = await supabase.functions.invoke('ai-chat', {
         body: { 
           message, 
-          userId: elderlyProfile.id 
+          userId: user?.id || elderlyProfile.id 
         },
       });
 
@@ -286,5 +289,13 @@ export default function ElderlyChat() {
         </p>
       </motion.div>
     </div>
+  );
+}
+
+export default function ElderlyChat() {
+  return (
+    <ProtectedRoute requiredUserType="elderly">
+      <ElderlyChatContent />
+    </ProtectedRoute>
   );
 }

@@ -1,16 +1,22 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { UserGreeting } from '@/components/elderly/UserGreeting';
 import { PuppyCharacter } from '@/components/elderly/PuppyCharacter';
 import { MissionButton } from '@/components/elderly/MissionButton';
 import { StepProgress } from '@/components/elderly/StepProgress';
 import { HeartButton } from '@/components/elderly/HeartButton';
 import { BottomNavigation } from '@/components/elderly/BottomNavigation';
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
-export default function ElderlyHome() {
+function ElderlyHomeContent() {
   const navigate = useNavigate();
   const { elderlyProfile, caregiverProfile, completeMission, sendHeart } = useApp();
+  const { profile } = useAuth();
+  
+  // Use auth profile name if available
+  const displayName = profile?.display_name || elderlyProfile.name;
   
   // Determine puppy mood based on missions completed
   const completedCount = elderlyProfile.missions.filter(m => m.completed).length;
@@ -20,7 +26,7 @@ export default function ElderlyHome() {
     <div className="min-h-screen bg-background pb-24 safe-area-top">
       <div className="max-w-lg mx-auto px-4 py-6">
         {/* Header with greeting */}
-        <UserGreeting name={elderlyProfile.name} />
+        <UserGreeting name={displayName} />
 
         {/* Puppy Section */}
         <motion.div 
@@ -81,5 +87,13 @@ export default function ElderlyHome() {
       {/* Bottom Navigation */}
       <BottomNavigation />
     </div>
+  );
+}
+
+export default function ElderlyHome() {
+  return (
+    <ProtectedRoute requiredUserType="elderly">
+      <ElderlyHomeContent />
+    </ProtectedRoute>
   );
 }

@@ -4,10 +4,11 @@ import { Plus, Edit2, Trash2, Save, X } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
 import { CaregiverNav } from '@/components/caregiver/CaregiverNav';
 import { Mission } from '@/types/app';
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
 const missionIcons = ['💊', '🍽', '🤸', '😊', '💧', '🛏', '📖', '🧘'];
 
-export default function CaregiverMissions() {
+function CaregiverMissionsContent() {
   const { elderlyProfile, updateMission } = useApp();
   const [editingMission, setEditingMission] = useState<Mission | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -180,5 +181,13 @@ export default function CaregiverMissions() {
 
       <CaregiverNav />
     </div>
+  );
+}
+
+export default function CaregiverMissions() {
+  return (
+    <ProtectedRoute requiredUserType="caregiver">
+      <CaregiverMissionsContent />
+    </ProtectedRoute>
   );
 }
