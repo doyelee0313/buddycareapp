@@ -55,9 +55,10 @@ export default function ElderlyAuthForm({ onBack }: ElderlyAuthFormProps) {
           setError('Invalid name or PIN. Please try again.');
         }
       } else {
-        // For signup, generate email from name
+        // For signup, generate email from name and pad PIN for Supabase's 6-char minimum
         const elderlyEmail = `${name.toLowerCase().replace(/\s+/g, '_')}@elderly.puppycare.app`;
-        const { error } = await signUp(elderlyEmail, pin, name, 'elderly', pin);
+        const paddedPin = `pin_${pin}`;
+        const { error } = await signUp(elderlyEmail, paddedPin, name, 'elderly', pin);
         if (error) {
           if (error.message.includes('already registered')) {
             setError('This name is already taken. Please login or use a different name.');
