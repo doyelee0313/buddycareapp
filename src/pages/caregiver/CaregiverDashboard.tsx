@@ -8,8 +8,9 @@ import { CaregiverSettingsDropdown } from '@/components/caregiver/CaregiverSetti
 import { PatientProfileModal } from '@/components/caregiver/PatientProfileModal';
 import { supabase } from '@/integrations/supabase/client';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import puppy3dHappy from '@/assets/puppy-3d-happy.png';
+import puppy3dSmiling from '@/assets/puppy-3d-smiling.png';
 import puppy3dSleepy from '@/assets/puppy-3d-sleepy.png';
+import puppy3dLove from '@/assets/puppy-3d-love.png';
 import { toast } from 'sonner';
 
 interface MissionCompletion {
@@ -139,9 +140,9 @@ function CaregiverDashboardContent() {
   }, [fetchData]);
   
   const getPuppyStatus = () => {
-    if (completedMissions === 0) return { text: 'Puppy is hungry', status: 'warning', image: puppy3dSleepy };
-    if (completedMissions < 3) return { text: 'Puppy needs attention', status: 'warning', image: puppy3dHappy };
-    return { text: 'Puppy is happy!', status: 'good', image: puppy3dHappy };
+    if (completedMissions === 0) return { text: 'Puppy is sleeping', status: 'warning', image: puppy3dSleepy };
+    if (completedMissions < 3) return { text: 'Puppy is smiling', status: 'warning', image: puppy3dSmiling };
+    return { text: 'Puppy is so happy!', status: 'good', image: puppy3dLove };
   };
 
   const puppyStatus = getPuppyStatus();
