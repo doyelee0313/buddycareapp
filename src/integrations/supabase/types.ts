@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      caregiver_logs: {
+        Row: {
+          caregiver_id: string
+          content: string
+          created_at: string
+          elderly_user_id: string
+          emotion_detected: string | null
+          id: string
+          is_read: boolean | null
+          log_type: string
+          severity: string | null
+          title: string
+        }
+        Insert: {
+          caregiver_id: string
+          content: string
+          created_at?: string
+          elderly_user_id: string
+          emotion_detected?: string | null
+          id?: string
+          is_read?: boolean | null
+          log_type: string
+          severity?: string | null
+          title: string
+        }
+        Update: {
+          caregiver_id?: string
+          content?: string
+          created_at?: string
+          elderly_user_id?: string
+          emotion_detected?: string | null
+          id?: string
+          is_read?: boolean | null
+          log_type?: string
+          severity?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
       conversations: {
         Row: {
           content: string
