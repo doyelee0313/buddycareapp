@@ -27,23 +27,32 @@ function ElderlyHomeContent() {
   const displayName = profile?.display_name || elderlyProfile.name;
   const caregiverName = linkedCaregiverName || caregiverProfile.name;
 
-  // Fetch linked caregiver
+  // Update last activity and fetch linked caregiver
   useEffect(() => {
-    const fetchLinkedCaregiver = async () => {
-      if (!user || !profile?.linked_caregiver_id) return;
+    const updateActivityAndFetchCaregiver = async () => {
+      if (!user) return;
       
-      const { data } = await supabase
+      // Update last activity timestamp
+      await supabase
         .from('profiles')
-        .select('display_name')
-        .eq('user_id', profile.linked_caregiver_id)
-        .maybeSingle();
+        .update({ last_activity_at: new Date().toISOString() })
+        .eq('user_id', user.id);
       
-      if (data) {
-        setLinkedCaregiverName(data.display_name);
+      // Fetch linked caregiver
+      if (profile?.linked_caregiver_id) {
+        const { data } = await supabase
+          .from('profiles')
+          .select('display_name')
+          .eq('user_id', profile.linked_caregiver_id)
+          .maybeSingle();
+        
+        if (data) {
+          setLinkedCaregiverName(data.display_name);
+        }
       }
     };
 
-    fetchLinkedCaregiver();
+    updateActivityAndFetchCaregiver();
   }, [user, profile?.linked_caregiver_id]);
 
   // Fetch today's completed missions
