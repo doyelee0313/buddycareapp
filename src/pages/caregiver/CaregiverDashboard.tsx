@@ -5,7 +5,6 @@ import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { CaregiverNav } from '@/components/caregiver/CaregiverNav';
 import { CaregiverSettingsDropdown } from '@/components/caregiver/CaregiverSettingsDropdown';
-import { PatientProfileModal } from '@/components/caregiver/PatientProfileModal';
 import { PatientSummaryCard } from '@/components/caregiver/PatientSummaryCard';
 import { InactivityAlert } from '@/components/caregiver/InactivityAlert';
 import { RewardModal } from '@/components/caregiver/RewardModal';
@@ -197,7 +196,7 @@ function CaregiverDashboardContent() {
         {/* Inactivity Alert */}
         <InactivityAlert stepCount={elderlyProfile.stepCount} />
 
-        {/* Patient Summary Card - Direct view (not popup) */}
+        {/* Patient Summary Card with Edit */}
         <motion.div
           className="mb-6"
           initial={{ opacity: 0, y: 10 }}
@@ -205,16 +204,6 @@ function CaregiverDashboardContent() {
           transition={{ delay: 0.05 }}
         >
           <PatientSummaryCard />
-        </motion.div>
-
-        {/* Patient Profile Button for detailed editing */}
-        <motion.div
-          className="mb-6"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.08 }}
-        >
-          <PatientProfileModal />
         </motion.div>
 
         {/* Puppy Status Card */}
