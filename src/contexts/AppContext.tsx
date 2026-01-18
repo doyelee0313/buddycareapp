@@ -35,29 +35,7 @@ const defaultCaregiverProfile: CaregiverProfile = {
   name: 'Sarah',
 };
 
-const defaultConversations: ConversationMessage[] = [
-  {
-    id: '1',
-    role: 'puppy',
-    content: 'Good morning! How are you feeling today?',
-    timestamp: new Date(Date.now() - 3600000),
-    emotionTag: 'neutral',
-  },
-  {
-    id: '2',
-    role: 'user',
-    content: 'I feel pretty good today! Had a nice breakfast.',
-    timestamp: new Date(Date.now() - 3500000),
-    emotionTag: 'happy',
-  },
-  {
-    id: '3',
-    role: 'puppy',
-    content: 'That\'s wonderful to hear! What did you have for breakfast?',
-    timestamp: new Date(Date.now() - 3400000),
-    emotionTag: 'happy',
-  },
-];
+const defaultConversations: ConversationMessage[] = [];
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 

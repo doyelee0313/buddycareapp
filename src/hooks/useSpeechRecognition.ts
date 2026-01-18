@@ -83,7 +83,7 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
       let finalTranscript = '';
       let interimTranscript = '';
 
-      for (let i = event.resultIndex; i < event.results.length; i++) {
+      for (let i = 0; i < event.results.length; i++) {
         const result = event.results[i];
         if (result.isFinal) {
           finalTranscript += result[0].transcript;
@@ -92,12 +92,12 @@ export function useSpeechRecognition(): SpeechRecognitionHook {
         }
       }
 
-      setTranscript(prev => {
-        if (finalTranscript) {
-          return prev + finalTranscript;
-        }
-        return prev + interimTranscript;
-      });
+      // Replace transcript entirely instead of appending
+      if (finalTranscript) {
+        setTranscript(finalTranscript);
+      } else {
+        setTranscript(interimTranscript);
+      }
     };
 
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
