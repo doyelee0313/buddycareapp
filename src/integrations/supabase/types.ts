@@ -122,6 +122,36 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_summaries: {
+        Row: {
+          concern_reason: string | null
+          created_at: string
+          has_concern: boolean | null
+          id: string
+          summary: string
+          summary_date: string
+          user_id: string
+        }
+        Insert: {
+          concern_reason?: string | null
+          created_at?: string
+          has_concern?: boolean | null
+          id?: string
+          summary: string
+          summary_date: string
+          user_id: string
+        }
+        Update: {
+          concern_reason?: string | null
+          created_at?: string
+          has_concern?: boolean | null
+          id?: string
+          summary?: string
+          summary_date?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       hearts: {
         Row: {
           created_at: string

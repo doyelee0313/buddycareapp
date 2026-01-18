@@ -1,13 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertTriangle, ChevronDown, ChevronUp, MessageSquare, Calendar, Smile } from 'lucide-react';
+import { AlertTriangle, ChevronDown, ChevronUp, MessageSquare, Calendar, Smile, Loader2, RefreshCw } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { CaregiverNav } from '@/components/caregiver/CaregiverNav';
 import { supabase } from '@/integrations/supabase/client';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { Button } from '@/components/ui/button';
-import { format, subDays, startOfDay, endOfDay, isSameDay } from 'date-fns';
+import { format, subDays, startOfDay, isSameDay } from 'date-fns';
+import { toast } from 'sonner';
 
 interface DbConversation {
   id: string;
@@ -25,22 +26,16 @@ interface MissionCompletion {
   completed_at: string;
 }
 
-interface DailySummary {
+interface AISummary {
   date: Date;
+  dateStr: string;
+  summary: string;
+  hasConcern: boolean;
+  concernReason: string | null;
   emotions: string[];
-  conversations: DbConversation[];
-  hasDanger: boolean;
+  messageCount: number;
+  isLoading?: boolean;
 }
-
-// Danger keywords for detection
-const DANGER_KEYWORDS = [
-  'pain', 'hurt', 'ache', 'sore', 'agony',
-  'lonely', 'alone', 'nobody', 'isolated', 'abandoned',
-  'emergency', 'help', 'fall', 'fell', 'accident',
-  'scared', 'afraid', 'terrified', 'panic',
-  'die', 'death', 'dying', 'end it',
-  'chest pain', 'can\'t breathe', 'dizzy', 'faint'
-];
 
 const emotionEmojis: Record<string, string> = {
   happy: '😊',
@@ -64,8 +59,11 @@ function CaregiverLogsContent() {
   const [dbConversations, setDbConversations] = useState<DbConversation[]>([]);
   const [missionCompletions, setMissionCompletions] = useState<MissionCompletion[]>([]);
   const [linkedElderlyName, setLinkedElderlyName] = useState<string | null>(null);
+  const [linkedElderlyId, setLinkedElderlyId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showAllMissions, setShowAllMissions] = useState(false);
+  const [aiSummaries, setAiSummaries] = useState<AISummary[]>([]);
+  const [isGeneratingSummaries, setIsGeneratingSummaries] = useState(false);
 
   // Fetch data
   useEffect(() => {
@@ -81,6 +79,7 @@ function CaregiverLogsContent() {
 
       if (elderlyData) {
         setLinkedElderlyName(elderlyData.display_name);
+        setLinkedElderlyId(elderlyData.user_id);
 
         // Fetch conversations (last 7 days)
         const sevenDaysAgo = subDays(new Date(), 7);
@@ -106,6 +105,34 @@ function CaregiverLogsContent() {
         if (missionsData) {
           setMissionCompletions(missionsData);
         }
+
+        // Fetch cached summaries
+        const { data: cachedSummaries } = await supabase
+          .from('daily_summaries')
+          .select('*')
+          .eq('user_id', elderlyData.user_id)
+          .gte('summary_date', format(sevenDaysAgo, 'yyyy-MM-dd'))
+          .order('summary_date', { ascending: false });
+
+        if (cachedSummaries && cachedSummaries.length > 0) {
+          const summaries: AISummary[] = cachedSummaries.map(s => {
+            const date = new Date(s.summary_date);
+            const dayConvs = convData?.filter(c => 
+              c.role === 'user' && isSameDay(new Date(c.created_at), date)
+            ) || [];
+            
+            return {
+              date,
+              dateStr: s.summary_date,
+              summary: s.summary,
+              hasConcern: s.has_concern || false,
+              concernReason: s.concern_reason,
+              emotions: dayConvs.filter(c => c.emotion_tag).map(c => c.emotion_tag!),
+              messageCount: dayConvs.length,
+            };
+          });
+          setAiSummaries(summaries);
+        }
       }
       setIsLoading(false);
     };
@@ -128,11 +155,128 @@ function CaregiverLogsContent() {
     };
   }, [user]);
 
-  // Check for danger signals in text
-  const hasDangerSignal = (text: string): boolean => {
-    const lowerText = text.toLowerCase();
-    return DANGER_KEYWORDS.some(keyword => lowerText.includes(keyword));
-  };
+  // Generate AI summary for a specific day
+  const generateSummaryForDay = useCallback(async (
+    date: Date, 
+    conversations: DbConversation[]
+  ): Promise<AISummary | null> => {
+    if (!linkedElderlyId || !linkedElderlyName) return null;
+
+    const dateStr = format(date, 'yyyy-MM-dd');
+    const dayConvs = conversations.filter(c => 
+      isSameDay(new Date(c.created_at), date)
+    );
+
+    if (dayConvs.length === 0) return null;
+
+    const userMessages = dayConvs.filter(c => c.role === 'user');
+
+    try {
+      const response = await supabase.functions.invoke('summarize-daily-chat', {
+        body: {
+          conversations: dayConvs,
+          elderlyName: linkedElderlyName,
+          date: dateStr,
+          elderlyUserId: linkedElderlyId,
+        }
+      });
+
+      if (response.error) {
+        console.error('Summary error:', response.error);
+        return null;
+      }
+
+      const data = response.data;
+
+      return {
+        date,
+        dateStr,
+        summary: data.summary || 'Unable to generate summary.',
+        hasConcern: data.hasConcern || false,
+        concernReason: data.concernReason || null,
+        emotions: userMessages.filter(c => c.emotion_tag).map(c => c.emotion_tag!),
+        messageCount: userMessages.length,
+      };
+    } catch (error) {
+      console.error('Failed to generate summary:', error);
+      return null;
+    }
+  }, [linkedElderlyId, linkedElderlyName]);
+
+  // Generate all missing summaries
+  const generateMissingSummaries = useCallback(async () => {
+    if (!linkedElderlyId || dbConversations.length === 0) return;
+
+    setIsGeneratingSummaries(true);
+
+    // Group conversations by day
+    const dayMap = new Map<string, { date: Date; convs: DbConversation[] }>();
+    dbConversations.forEach(conv => {
+      const dateStr = format(new Date(conv.created_at), 'yyyy-MM-dd');
+      if (!dayMap.has(dateStr)) {
+        dayMap.set(dateStr, { 
+          date: startOfDay(new Date(conv.created_at)), 
+          convs: [] 
+        });
+      }
+      dayMap.get(dateStr)!.convs.push(conv);
+    });
+
+    // Find days without summaries
+    const existingDates = new Set(aiSummaries.map(s => s.dateStr));
+    const missingDays = Array.from(dayMap.entries())
+      .filter(([dateStr]) => !existingDates.has(dateStr))
+      .sort((a, b) => new Date(b[0]).getTime() - new Date(a[0]).getTime());
+
+    if (missingDays.length === 0) {
+      toast.info('All summaries are up to date');
+      setIsGeneratingSummaries(false);
+      return;
+    }
+
+    // Add loading placeholders
+    const loadingPlaceholders: AISummary[] = missingDays.map(([dateStr, { date, convs }]) => ({
+      date,
+      dateStr,
+      summary: '',
+      hasConcern: false,
+      concernReason: null,
+      emotions: convs.filter(c => c.role === 'user' && c.emotion_tag).map(c => c.emotion_tag!),
+      messageCount: convs.filter(c => c.role === 'user').length,
+      isLoading: true,
+    }));
+
+    setAiSummaries(prev => [...loadingPlaceholders, ...prev].sort((a, b) => 
+      new Date(b.dateStr).getTime() - new Date(a.dateStr).getTime()
+    ));
+
+    // Generate summaries one by one to avoid rate limits
+    for (const [dateStr, { date, convs }] of missingDays) {
+      const summary = await generateSummaryForDay(date, convs);
+      
+      if (summary) {
+        setAiSummaries(prev => prev.map(s => 
+          s.dateStr === dateStr ? { ...summary, isLoading: false } : s
+        ));
+      } else {
+        // Remove failed placeholder
+        setAiSummaries(prev => prev.filter(s => !(s.dateStr === dateStr && s.isLoading)));
+      }
+
+      // Small delay between requests
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+
+    setIsGeneratingSummaries(false);
+    toast.success('Summaries generated successfully');
+  }, [linkedElderlyId, dbConversations, aiSummaries, generateSummaryForDay]);
+
+  // Auto-generate summaries when data loads
+  useEffect(() => {
+    if (!isLoading && dbConversations.length > 0 && aiSummaries.length === 0 && linkedElderlyId) {
+      generateMissingSummaries();
+    }
+  }, [isLoading, dbConversations.length, aiSummaries.length, linkedElderlyId]);
 
   // Get emotions for the last 7 days
   const getLast7DaysEmotions = () => {
@@ -148,33 +292,6 @@ function CaregiverLogsContent() {
       days.push({ date, emotions });
     }
     return days;
-  };
-
-  // Get daily summaries for chat
-  const getDailySummaries = (): DailySummary[] => {
-    const summaryMap = new Map<string, DailySummary>();
-    
-    dbConversations.forEach(conv => {
-      const dateKey = format(new Date(conv.created_at), 'yyyy-MM-dd');
-      if (!summaryMap.has(dateKey)) {
-        summaryMap.set(dateKey, {
-          date: startOfDay(new Date(conv.created_at)),
-          emotions: [],
-          conversations: [],
-          hasDanger: false,
-        });
-      }
-      const summary = summaryMap.get(dateKey)!;
-      summary.conversations.push(conv);
-      if (conv.emotion_tag && conv.role === 'user') {
-        summary.emotions.push(conv.emotion_tag);
-      }
-      if (hasDangerSignal(conv.content)) {
-        summary.hasDanger = true;
-      }
-    });
-
-    return Array.from(summaryMap.values()).sort((a, b) => b.date.getTime() - a.date.getTime());
   };
 
   // Get mission stats for last 7 days
@@ -195,7 +312,6 @@ function CaregiverLogsContent() {
   };
 
   const last7DaysEmotions = getLast7DaysEmotions();
-  const dailySummaries = getDailySummaries();
   const missionStats = getMissionStats();
   const displayedMissions = showAllMissions ? missionStats : missionStats.slice(0, 3);
   const displayName = linkedElderlyName || elderlyProfile.name;
@@ -340,9 +456,26 @@ function CaregiverLogsContent() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <div className="flex items-center gap-2 mb-4">
-            <MessageSquare className="w-5 h-5 text-primary" />
-            <h3 className="font-bold text-lg">Daily Chat Summaries</h3>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <MessageSquare className="w-5 h-5 text-primary" />
+              <h3 className="font-bold text-lg">Daily Chat Summaries</h3>
+            </div>
+            {!isLoading && dbConversations.length > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={generateMissingSummaries}
+                disabled={isGeneratingSummaries}
+                className="text-xs"
+              >
+                {isGeneratingSummaries ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="w-4 h-4" />
+                )}
+              </Button>
+            )}
           </div>
           
           {isLoading ? (
@@ -351,7 +484,7 @@ function CaregiverLogsContent() {
                 <div key={i} className="h-24 bg-muted animate-pulse rounded-xl" />
               ))}
             </div>
-          ) : dailySummaries.length === 0 ? (
+          ) : aiSummaries.length === 0 && dbConversations.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <MessageSquare className="w-12 h-12 mx-auto mb-3 opacity-30" />
               <p>No conversations yet</p>
@@ -359,76 +492,65 @@ function CaregiverLogsContent() {
             </div>
           ) : (
             <div className="space-y-4">
-              {dailySummaries.map((summary, index) => {
-                const userMessages = summary.conversations.filter(c => c.role === 'user');
+              {aiSummaries.map((summary, index) => {
                 const emotionSummary = summary.emotions.length > 0
                   ? [...new Set(summary.emotions)].map(e => emotionEmojis[e] || '').join(' ')
                   : '';
                 
                 return (
                   <motion.div
-                    key={format(summary.date, 'yyyy-MM-dd')}
+                    key={summary.dateStr}
                     className={`p-4 rounded-xl border-2 ${
-                      summary.hasDanger 
+                      summary.hasConcern 
                         ? 'bg-red-50 border-red-300' 
                         : 'bg-muted/30 border-transparent'
                     }`}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4 + index * 0.05 }}
+                    transition={{ delay: 0.1 + index * 0.05 }}
                   >
-                    {/* Header with date and danger indicator */}
+                    {/* Header with date and concern indicator */}
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
                         <span className="font-semibold">{format(summary.date, 'EEEE, MMM d')}</span>
                         {emotionSummary && <span className="text-lg">{emotionSummary}</span>}
                       </div>
-                      {summary.hasDanger && (
+                      {summary.hasConcern && (
                         <motion.div
                           className="flex items-center gap-1 text-red-600"
                           animate={{ scale: [1, 1.1, 1] }}
                           transition={{ duration: 1, repeat: Infinity }}
                         >
                           <AlertTriangle className="w-5 h-5" />
-                          <span className="text-xs font-bold">ALERT</span>
+                          <span className="text-xs font-bold">CONCERN</span>
                         </motion.div>
                       )}
                     </div>
 
-                    {/* Summary content */}
-                    <div className="text-sm text-muted-foreground mb-2">
-                      {userMessages.length} messages from {displayName}
+                    {/* Message count */}
+                    <div className="text-xs text-muted-foreground mb-2">
+                      {summary.messageCount} messages from {displayName}
                     </div>
 
-                    {/* Sample messages */}
-                    <div className="space-y-2">
-                      {userMessages.slice(0, 2).map((msg, msgIndex) => {
-                        const isDanger = hasDangerSignal(msg.content);
-                        return (
-                          <div
-                            key={msg.id}
-                            className={`text-sm p-2 rounded-lg ${
-                              isDanger 
-                                ? 'bg-red-100 text-red-800 border border-red-300' 
-                                : 'bg-background'
-                            }`}
-                          >
-                            {isDanger && <AlertTriangle className="w-3 h-3 inline mr-1" />}
-                            "{msg.content.length > 80 
-                              ? msg.content.substring(0, 80) + '...' 
-                              : msg.content}"
-                            <span className="text-xs text-muted-foreground ml-2">
-                              {format(new Date(msg.created_at), 'h:mm a')}
-                            </span>
-                          </div>
-                        );
-                      })}
-                      {userMessages.length > 2 && (
-                        <p className="text-xs text-muted-foreground">
-                          +{userMessages.length - 2} more messages
+                    {/* AI Summary */}
+                    {summary.isLoading ? (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Generating AI summary...
+                      </div>
+                    ) : (
+                      <p className="text-sm leading-relaxed">{summary.summary}</p>
+                    )}
+
+                    {/* Concern reason if flagged */}
+                    {summary.hasConcern && summary.concernReason && (
+                      <div className="mt-3 p-2 bg-red-100 rounded-lg border border-red-200">
+                        <p className="text-sm text-red-800 font-medium flex items-start gap-2">
+                          <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                          {summary.concernReason}
                         </p>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </motion.div>
                 );
               })}
