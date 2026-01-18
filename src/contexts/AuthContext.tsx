@@ -80,7 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     displayName: string, 
     userType: 'elderly' | 'caregiver',
     pinCode?: string,
-    caregiverId?: string
+    caregiverCode?: string
   ) => {
     const redirectUrl = `${window.location.origin}/`;
     
@@ -96,6 +96,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Create profile after signup
     if (data.user) {
+      let linkedCaregiverId: string | null = null;
+      
+      // For elderly users, look up the caregiver by their code
+      if (userType === 'elderly' && caregiverCode) {
+        const { data: caregiverProfile } = await supabase
+          .from('profiles')
+          .select('user_id')
+          .eq('caregiver_id', caregiverCode.toUpperCase())
+          .eq('user_type', 'caregiver')
+          .single();
+        
+        if (caregiverProfile) {
+          linkedCaregiverId = caregiverProfile.user_id;
+        }
+      }
+
       const { error: profileError } = await supabase
         .from('profiles')
         .insert({
@@ -103,7 +119,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           display_name: displayName,
           user_type: userType,
           pin_code: pinCode,
-          caregiver_id: caregiverId,
+          caregiver_id: userType === 'caregiver' ? caregiverCode : null,
+          linked_caregiver_id: linkedCaregiverId,
         });
 
       if (profileError) {

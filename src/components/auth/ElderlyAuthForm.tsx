@@ -16,7 +16,7 @@ export default function ElderlyAuthForm({ onBack }: ElderlyAuthFormProps) {
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState('');
   const [pin, setPin] = useState('');
-  const [email, setEmail] = useState('');
+  const [caregiverCode, setCaregiverCode] = useState('');
   const [error, setError] = useState('');
   
   const { signInWithPin, signUp } = useAuth();
@@ -58,7 +58,7 @@ export default function ElderlyAuthForm({ onBack }: ElderlyAuthFormProps) {
         // For signup, generate email from name and pad PIN for Supabase's 6-char minimum
         const elderlyEmail = `${name.toLowerCase().replace(/\s+/g, '_')}@elderly.puppycare.app`;
         const paddedPin = `pin_${pin}`;
-        const { error } = await signUp(elderlyEmail, paddedPin, name, 'elderly', pin);
+        const { error } = await signUp(elderlyEmail, paddedPin, name, 'elderly', pin, caregiverCode || undefined);
         if (error) {
           if (error.message.includes('already registered')) {
             setError('This name is already taken. Please login or use a different name.');
@@ -118,7 +118,7 @@ export default function ElderlyAuthForm({ onBack }: ElderlyAuthFormProps) {
       </div>
 
       {/* Name Input - Large and accessible */}
-      <div className="mb-6">
+      <div className="mb-4">
         <label className="block text-xl font-semibold text-foreground mb-3">
           Your Name
         </label>
@@ -134,8 +134,30 @@ export default function ElderlyAuthForm({ onBack }: ElderlyAuthFormProps) {
         />
       </div>
 
+      {/* Caregiver Code Input - Only for signup */}
+      {!isLogin && (
+        <div className="mb-4">
+          <label className="block text-lg font-semibold text-foreground mb-2">
+            Caregiver Code <span className="text-muted-foreground font-normal">(optional)</span>
+          </label>
+          <Input
+            type="text"
+            placeholder="e.g., CG001"
+            value={caregiverCode}
+            onChange={(e) => {
+              setCaregiverCode(e.target.value.toUpperCase());
+              setError('');
+            }}
+            className="h-14 text-xl text-center font-semibold rounded-2xl border-2 border-muted focus:border-primary uppercase"
+          />
+          <p className="text-sm text-muted-foreground mt-1 text-center">
+            Ask your caregiver for their code
+          </p>
+        </div>
+      )}
+
       {/* PIN Display */}
-      <div className="mb-6">
+      <div className="mb-4">
         <label className="block text-xl font-semibold text-foreground mb-3 text-center">
           Your 4-Digit PIN
         </label>
@@ -220,6 +242,7 @@ export default function ElderlyAuthForm({ onBack }: ElderlyAuthFormProps) {
             setIsLogin(!isLogin);
             setError('');
             setPin('');
+            setCaregiverCode('');
           }}
           className="text-primary font-bold hover:underline text-xl"
         >
