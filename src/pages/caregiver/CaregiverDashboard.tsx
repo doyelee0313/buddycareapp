@@ -8,6 +8,7 @@ import { CaregiverSettingsDropdown } from '@/components/caregiver/CaregiverSetti
 import { PatientProfileModal } from '@/components/caregiver/PatientProfileModal';
 import { PatientSummaryCard } from '@/components/caregiver/PatientSummaryCard';
 import { InactivityAlert } from '@/components/caregiver/InactivityAlert';
+import { RewardModal } from '@/components/caregiver/RewardModal';
 import { supabase } from '@/integrations/supabase/client';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import puppy3dSmiling from '@/assets/puppy-3d-smiling.png';
@@ -24,9 +25,11 @@ function CaregiverDashboardContent() {
   const { elderlyProfile, heartNotifications } = useApp();
   const { user, profile } = useAuth();
   const [dbHeartCount, setDbHeartCount] = useState(0);
+  const [totalHeartsAllTime, setTotalHeartsAllTime] = useState(0);
   const [dbMissionCompletions, setDbMissionCompletions] = useState<MissionCompletion[]>([]);
   const [linkedElderlyName, setLinkedElderlyName] = useState<string | null>(null);
   const [isRealtime, setIsRealtime] = useState(false);
+  const [rewardRefresh, setRewardRefresh] = useState(0);
   
   // Calculate completed missions from DB data for today
   const todaysMissions = dbMissionCompletions.filter(m => {
@@ -65,7 +68,7 @@ function CaregiverDashboardContent() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
-    // Fetch hearts
+    // Fetch today's hearts
     const { count } = await supabase
       .from('hearts')
       .select('*', { count: 'exact' })
@@ -73,6 +76,15 @@ function CaregiverDashboardContent() {
     
     if (count !== null) {
       setDbHeartCount(count);
+    }
+
+    // Fetch all-time hearts for reward tracking
+    const { count: allTimeCount } = await supabase
+      .from('hearts')
+      .select('*', { count: 'exact' });
+    
+    if (allTimeCount !== null) {
+      setTotalHeartsAllTime(allTimeCount);
     }
 
     // Fetch mission completions
@@ -102,6 +114,7 @@ function CaregiverDashboardContent() {
         (payload) => {
           console.log('Heart received in realtime:', payload);
           setDbHeartCount(prev => prev + 1);
+          setTotalHeartsAllTime(prev => prev + 1);
           toast.success('💕 You received a heart!', {
             description: 'Your loved one is thinking of you',
           });
@@ -153,6 +166,12 @@ function CaregiverDashboardContent() {
 
   return (
     <div className="min-h-screen bg-background pb-24 safe-area-top">
+      {/* Reward Modal - triggers when 20 hearts collected */}
+      <RewardModal 
+        totalHearts={totalHeartsAllTime} 
+        onCouponClaimed={() => setRewardRefresh(prev => prev + 1)} 
+      />
+      
       <div className="max-w-lg mx-auto px-4 py-6">
         {/* Header */}
         <motion.div 

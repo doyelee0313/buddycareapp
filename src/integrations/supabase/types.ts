@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      caregiver_coupons: {
+        Row: {
+          caregiver_id: string
+          coupon_code: string
+          coupon_description: string | null
+          coupon_title: string
+          coupon_type: string
+          earned_at: string
+          expires_at: string | null
+          hearts_required: number
+          id: string
+          is_redeemed: boolean
+          redeemed_at: string | null
+        }
+        Insert: {
+          caregiver_id: string
+          coupon_code: string
+          coupon_description?: string | null
+          coupon_title: string
+          coupon_type?: string
+          earned_at?: string
+          expires_at?: string | null
+          hearts_required?: number
+          id?: string
+          is_redeemed?: boolean
+          redeemed_at?: string | null
+        }
+        Update: {
+          caregiver_id?: string
+          coupon_code?: string
+          coupon_description?: string | null
+          coupon_title?: string
+          coupon_type?: string
+          earned_at?: string
+          expires_at?: string | null
+          hearts_required?: number
+          id?: string
+          is_redeemed?: boolean
+          redeemed_at?: string | null
+        }
+        Relationships: []
+      }
       caregiver_logs: {
         Row: {
           caregiver_id: string
