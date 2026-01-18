@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Settings, LogOut, User } from 'lucide-react';
+import { Settings, LogOut, User, Gift } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   DropdownMenu,
@@ -21,6 +21,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { CouponBox } from './CouponBox';
 
 export function CaregiverSettingsDropdown() {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
@@ -65,6 +66,10 @@ export function CaregiverSettingsDropdown() {
           <DropdownMenuItem className="cursor-pointer">
             <User className="mr-2 h-4 w-4" />
             <span>Profile</span>
+          </DropdownMenuItem>
+          
+          <DropdownMenuItem className="cursor-pointer p-0" onSelect={(e) => e.preventDefault()}>
+            <CouponBox />
           </DropdownMenuItem>
           
           <DropdownMenuItem className="cursor-pointer">
