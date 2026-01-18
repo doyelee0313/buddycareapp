@@ -8,6 +8,7 @@ import { MissionButton } from '@/components/elderly/MissionButton';
 import { StepProgress } from '@/components/elderly/StepProgress';
 import { HeartButton } from '@/components/elderly/HeartButton';
 import { BottomNavigation } from '@/components/elderly/BottomNavigation';
+import { ElderlySettingsSheet } from '@/components/elderly/ElderlySettingsSheet';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
 function ElderlyHomeContent() {
@@ -25,8 +26,13 @@ function ElderlyHomeContent() {
   return (
     <div className="min-h-screen bg-background pb-24 safe-area-top">
       <div className="max-w-lg mx-auto px-4 py-6">
-        {/* Header with greeting */}
-        <UserGreeting name={displayName} />
+        {/* Header with Profile and Greeting */}
+        <div className="flex items-center gap-4 mb-2">
+          <ElderlySettingsSheet />
+          <div className="flex-1">
+            <UserGreeting name={displayName} />
+          </div>
+        </div>
 
         {/* Puppy Section */}
         <motion.div 

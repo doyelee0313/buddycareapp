@@ -4,6 +4,7 @@ import { Heart, Activity, Check } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { CaregiverNav } from '@/components/caregiver/CaregiverNav';
+import { CaregiverSettingsDropdown } from '@/components/caregiver/CaregiverSettingsDropdown';
 import { supabase } from '@/integrations/supabase/client';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import puppy3dHappy from '@/assets/puppy-3d-happy.png';
@@ -102,12 +103,15 @@ function CaregiverDashboardContent() {
       <div className="max-w-lg mx-auto px-4 py-6">
         {/* Header */}
         <motion.div 
-          className="mb-6"
+          className="flex items-center justify-between mb-6"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <h1 className="text-2xl font-bold text-foreground">Care Monitor</h1>
-          <p className="text-muted-foreground">Monitoring {elderlyProfile.name}</p>
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Care Monitor</h1>
+            <p className="text-muted-foreground">Monitoring {elderlyProfile.name}</p>
+          </div>
+          <CaregiverSettingsDropdown />
         </motion.div>
 
         {/* Puppy Status Card */}
