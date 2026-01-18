@@ -192,6 +192,18 @@ export type Database = {
         }
         Returns: boolean
       }
+      insert_caregiver_log: {
+        Args: {
+          p_caregiver_id: string
+          p_content: string
+          p_elderly_user_id: string
+          p_emotion_detected?: string
+          p_log_type: string
+          p_severity?: string
+          p_title: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       app_role: "admin" | "user"
