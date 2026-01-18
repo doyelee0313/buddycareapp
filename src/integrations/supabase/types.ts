@@ -164,6 +164,42 @@ export type Database = {
         }
         Relationships: []
       }
+      patient_profiles: {
+        Row: {
+          allergies: string[] | null
+          chronic_diseases: string[] | null
+          created_at: string
+          current_medications: string[] | null
+          emergency_contact: string | null
+          health_status_summary: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          allergies?: string[] | null
+          chronic_diseases?: string[] | null
+          created_at?: string
+          current_medications?: string[] | null
+          emergency_contact?: string | null
+          health_status_summary?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          allergies?: string[] | null
+          chronic_diseases?: string[] | null
+          created_at?: string
+          current_medications?: string[] | null
+          emergency_contact?: string | null
+          health_status_summary?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           caregiver_id: string | null

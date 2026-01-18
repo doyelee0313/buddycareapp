@@ -69,7 +69,7 @@ export function PatientSummaryCard() {
         
         // Fetch patient profile
         const { data: profileData } = await supabase
-          .from('patient_profiles' as any)
+          .from('patient_profiles')
           .select('*')
           .eq('user_id', elderlyData.user_id)
           .maybeSingle();
@@ -109,7 +109,7 @@ export function PatientSummaryCard() {
       if (patientProfile?.id) {
         // Update existing
         const { error } = await supabase
-          .from('patient_profiles' as any)
+          .from('patient_profiles')
           .update(profileData)
           .eq('id', patientProfile.id);
         
@@ -117,7 +117,7 @@ export function PatientSummaryCard() {
       } else {
         // Insert new
         const { error } = await supabase
-          .from('patient_profiles' as any)
+          .from('patient_profiles')
           .insert(profileData);
         
         if (error) throw error;
