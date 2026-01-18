@@ -1,1 +1,7 @@
 project_id = "cnifxqzvaiaycxwrrpnl"
+
+[functions.ai-chat]
+verify_jwt = false
+
+[functions.summarize-daily-chat]
+verify_jwt = false
