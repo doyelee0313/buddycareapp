@@ -1,25 +1,98 @@
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Heart, Activity, Check, AlertCircle } from 'lucide-react';
+import { Heart, Activity, Check } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
 import { CaregiverNav } from '@/components/caregiver/CaregiverNav';
-import puppyHappy from '@/assets/puppy-happy.png';
-import puppySleepy from '@/assets/puppy-sleepy.png';
+import { supabase } from '@/integrations/supabase/client';
+import puppy3dHappy from '@/assets/puppy-3d-happy.png';
+import puppy3dSleepy from '@/assets/puppy-3d-sleepy.png';
 
 export default function CaregiverDashboard() {
   const { elderlyProfile, heartNotifications } = useApp();
+  const [dbHeartCount, setDbHeartCount] = useState(0);
+  const [dbMissionCompletions, setDbMissionCompletions] = useState<string[]>([]);
   
   const completedMissions = elderlyProfile.missions.filter(m => m.completed).length;
   const totalMissions = elderlyProfile.missions.length;
   const stepPercentage = Math.round((elderlyProfile.stepCount / elderlyProfile.stepGoal) * 100);
+
+  // Fetch hearts and mission completions from database
+  useEffect(() => {
+    const fetchData = async () => {
+      // Get today's date range
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      // Fetch hearts
+      const { data: heartsData, count } = await supabase
+        .from('hearts')
+        .select('*', { count: 'exact' })
+        .gte('created_at', today.toISOString());
+      
+      if (count !== null) {
+        setDbHeartCount(count);
+      }
+
+      // Fetch mission completions
+      const { data: missionsData } = await supabase
+        .from('mission_completions')
+        .select('mission_type')
+        .gte('completed_at', today.toISOString());
+      
+      if (missionsData) {
+        setDbMissionCompletions(missionsData.map(m => m.mission_type));
+      }
+    };
+
+    fetchData();
+
+    // Subscribe to realtime updates for hearts
+    const heartsChannel = supabase
+      .channel('hearts-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'hearts',
+        },
+        () => {
+          setDbHeartCount(prev => prev + 1);
+        }
+      )
+      .subscribe();
+
+    // Subscribe to realtime updates for mission completions
+    const missionsChannel = supabase
+      .channel('missions-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'mission_completions',
+        },
+        (payload) => {
+          const newMission = payload.new as { mission_type: string };
+          setDbMissionCompletions(prev => [...prev, newMission.mission_type]);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(heartsChannel);
+      supabase.removeChannel(missionsChannel);
+    };
+  }, []);
   
   const getPuppyStatus = () => {
-    if (completedMissions === 0) return { text: 'Puppy is hungry', status: 'warning', image: puppySleepy };
-    if (completedMissions < 3) return { text: 'Puppy needs attention', status: 'warning', image: puppyHappy };
-    return { text: 'Puppy is happy!', status: 'good', image: puppyHappy };
+    if (completedMissions === 0) return { text: 'Puppy is hungry', status: 'warning', image: puppy3dSleepy };
+    if (completedMissions < 3) return { text: 'Puppy needs attention', status: 'warning', image: puppy3dHappy };
+    return { text: 'Puppy is happy!', status: 'good', image: puppy3dHappy };
   };
 
   const puppyStatus = getPuppyStatus();
-  const totalHearts = heartNotifications.reduce((sum, n) => sum + n.count, 0);
+  const totalHearts = heartNotifications.reduce((sum, n) => sum + n.count, 0) + dbHeartCount;
 
   return (
     <div className="min-h-screen bg-background pb-24 safe-area-top">
@@ -45,7 +118,7 @@ export default function CaregiverDashboard() {
             <motion.img 
               src={puppyStatus.image}
               alt="Puppy status"
-              className="w-20 h-20 object-contain"
+              className="w-24 h-24 object-contain"
               animate={{ y: [0, -5, 0] }}
               transition={{ duration: 2, repeat: Infinity }}
             />
@@ -110,7 +183,7 @@ export default function CaregiverDashboard() {
               <Heart className="w-12 h-12 fill-current" />
             </motion.div>
             <div>
-              <h3 className="text-2xl font-bold">You received {totalHearts} hearts!</h3>
+              <h3 className="text-2xl font-bold">You received {totalHearts} heart{totalHearts !== 1 ? 's' : ''}!</h3>
               <p className="opacity-90">from {elderlyProfile.name}</p>
             </div>
           </div>
