@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mic, MicOff, ArrowLeft, Send } from 'lucide-react';
+import { Mic, MicOff, ArrowLeft, Send, Volume2, VolumeX } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
+import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 import { supabase } from '@/integrations/supabase/client';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import puppy3dFace from '@/assets/puppy-3d-face.png';
@@ -17,6 +18,7 @@ function ElderlyChatContent() {
   const { user } = useAuth();
   const [currentTranscript, setCurrentTranscript] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [ttsEnabled, setTtsEnabled] = useState(true);
   const chatEndRef = useRef<HTMLDivElement>(null);
   
   const {
@@ -28,6 +30,14 @@ function ElderlyChatContent() {
     resetTranscript,
     error: speechError,
   } = useSpeechRecognition();
+
+  const {
+    isSpeaking,
+    isSupported: ttsSupported,
+    speak,
+    stop: stopSpeaking,
+    error: ttsError,
+  } = useTextToSpeech();
 
   // Sync speech transcript to input
   useEffect(() => {
@@ -42,6 +52,13 @@ function ElderlyChatContent() {
       toast.error(speechError);
     }
   }, [speechError]);
+
+  // Show TTS errors
+  useEffect(() => {
+    if (ttsError) {
+      toast.error(ttsError);
+    }
+  }, [ttsError]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -98,13 +115,21 @@ function ElderlyChatContent() {
       }
 
       // Add puppy response
+      const puppyResponse = data?.response || "Woof! I'm here for you! 🐕";
       const puppyMessage: ConversationMessage = {
         id: (Date.now() + 1).toString(),
         role: 'puppy',
-        content: data?.response || "Woof! I'm here for you! 🐕",
+        content: puppyResponse,
         timestamp: new Date(),
       };
       addConversation(puppyMessage);
+
+      // Speak the response if TTS is enabled
+      if (ttsEnabled && ttsSupported) {
+        // Remove emojis for cleaner speech
+        const cleanText = puppyResponse.replace(/[\u{1F600}-\u{1F6FF}|\u{1F900}-\u{1F9FF}|\u{2600}-\u{26FF}|\u{2700}-\u{27BF}]/gu, '').trim();
+        speak(cleanText);
+      }
     } catch (err) {
       console.error('Chat error:', err);
       toast.error('Could not send message. Please try again.');
@@ -153,10 +178,29 @@ function ElderlyChatContent() {
           animate={{ rotate: [0, 5, -5, 0] }}
           transition={{ duration: 2, repeat: Infinity }}
         />
-        <div>
+        <div className="flex-1">
           <h1 className="text-elderly-lg">Buddy</h1>
           <p className="text-muted-foreground">Your AI companion</p>
         </div>
+        
+        {/* TTS Toggle */}
+        {ttsSupported && (
+          <motion.button
+            className={`p-3 rounded-2xl ${ttsEnabled ? 'bg-primary text-white' : 'bg-muted'}`}
+            onClick={() => {
+              if (isSpeaking) stopSpeaking();
+              setTtsEnabled(!ttsEnabled);
+            }}
+            whileTap={{ scale: 0.9 }}
+            title={ttsEnabled ? 'Mute Buddy' : 'Unmute Buddy'}
+          >
+            {ttsEnabled ? (
+              <Volume2 className="w-6 h-6" />
+            ) : (
+              <VolumeX className="w-6 h-6" />
+            )}
+          </motion.button>
+        )}
       </motion.header>
 
       {/* Chat Messages */}
