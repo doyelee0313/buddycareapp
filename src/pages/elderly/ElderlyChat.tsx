@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mic, MicOff, ArrowLeft, Send, Volume2, VolumeX } from 'lucide-react';
+import { Mic, MicOff, ArrowLeft, Send, Volume2, VolumeX, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -156,6 +156,15 @@ function ElderlyChatContent() {
     handleSendMessage();
   };
 
+  const handleConversationStarter = (topic: string) => {
+    setCurrentTranscript(topic);
+  };
+
+  const conversationStarters = [
+    { label: '🍲 Favorite Food', prompt: "Let's talk about my favorite food" },
+    { label: '💭 Memories', prompt: "I'd like to share a memory with you" },
+  ];
+
   return (
     <div className="min-h-screen bg-background flex flex-col safe-area-top safe-area-bottom">
       {/* Header */}
@@ -205,6 +214,47 @@ function ElderlyChatContent() {
 
       {/* Chat Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {/* Conversation Starters - show when chat is empty */}
+        {conversations.length === 0 && !isLoading && (
+          <motion.div
+            className="flex flex-col items-center justify-center py-8"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <motion.img 
+              src={puppy3dFace} 
+              alt="Buddy" 
+              className="w-24 h-24 rounded-full object-cover mb-4"
+              animate={{ scale: [1, 1.05, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
+            <p className="text-elderly-lg text-center mb-2">Hi there! 👋</p>
+            <p className="text-muted-foreground text-center mb-6">What would you like to talk about today?</p>
+            
+            <div className="flex items-center gap-2 mb-4">
+              <Sparkles className="w-5 h-5 text-primary" />
+              <span className="text-sm font-medium text-muted-foreground">Today's Topics</span>
+            </div>
+            
+            <div className="flex flex-wrap gap-3 justify-center">
+              {conversationStarters.map((starter, index) => (
+                <motion.button
+                  key={index}
+                  className="px-5 py-3 bg-primary/10 hover:bg-primary/20 text-primary rounded-full text-elderly-base font-medium border-2 border-primary/30 transition-colors"
+                  onClick={() => handleConversationStarter(starter.prompt)}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  {starter.label}
+                </motion.button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
         <AnimatePresence mode="popLayout">
           {conversations.map((message) => (
             <motion.div
