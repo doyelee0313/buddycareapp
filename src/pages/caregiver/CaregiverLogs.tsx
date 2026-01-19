@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertTriangle, ChevronDown, ChevronUp, MessageSquare, Calendar, Smile, Loader2, RefreshCw } from 'lucide-react';
+import { AlertTriangle, ChevronDown, ChevronUp, MessageSquare, Calendar, Smile, Loader2, RefreshCw, Eye, EyeOff } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { CaregiverNav } from '@/components/caregiver/CaregiverNav';
@@ -35,6 +35,7 @@ interface AISummary {
   emotions: string[];
   messageCount: number;
   isLoading?: boolean;
+  conversations: DbConversation[];
 }
 
 const emotionEmojis: Record<string, string> = {
@@ -64,6 +65,7 @@ function CaregiverLogsContent() {
   const [showAllMissions, setShowAllMissions] = useState(false);
   const [aiSummaries, setAiSummaries] = useState<AISummary[]>([]);
   const [isGeneratingSummaries, setIsGeneratingSummaries] = useState(false);
+  const [expandedChats, setExpandedChats] = useState<Set<string>>(new Set());
 
   // Fetch data
   useEffect(() => {
@@ -117,9 +119,10 @@ function CaregiverLogsContent() {
         if (cachedSummaries && cachedSummaries.length > 0) {
           const summaries: AISummary[] = cachedSummaries.map(s => {
             const date = new Date(s.summary_date);
-            const dayConvs = convData?.filter(c => 
-              c.role === 'user' && isSameDay(new Date(c.created_at), date)
+            const allDayConvs = convData?.filter(c => 
+              isSameDay(new Date(c.created_at), date)
             ) || [];
+            const userConvs = allDayConvs.filter(c => c.role === 'user');
             
             return {
               date,
@@ -127,8 +130,9 @@ function CaregiverLogsContent() {
               summary: s.summary,
               hasConcern: s.has_concern || false,
               concernReason: s.concern_reason,
-              emotions: dayConvs.filter(c => c.emotion_tag).map(c => c.emotion_tag!),
-              messageCount: dayConvs.length,
+              emotions: userConvs.filter(c => c.emotion_tag).map(c => c.emotion_tag!),
+              messageCount: userConvs.length,
+              conversations: allDayConvs,
             };
           });
           setAiSummaries(summaries);
@@ -196,6 +200,7 @@ function CaregiverLogsContent() {
         concernReason: data.concernReason || null,
         emotions: userMessages.filter(c => c.emotion_tag).map(c => c.emotion_tag!),
         messageCount: userMessages.length,
+        conversations: dayConvs,
       };
     } catch (error) {
       console.error('Failed to generate summary:', error);
@@ -244,6 +249,7 @@ function CaregiverLogsContent() {
       emotions: convs.filter(c => c.role === 'user' && c.emotion_tag).map(c => c.emotion_tag!),
       messageCount: convs.filter(c => c.role === 'user').length,
       isLoading: true,
+      conversations: convs,
     }));
 
     setAiSummaries(prev => [...loadingPlaceholders, ...prev].sort((a, b) => 
@@ -315,6 +321,18 @@ function CaregiverLogsContent() {
   const missionStats = getMissionStats();
   const displayedMissions = showAllMissions ? missionStats : missionStats.slice(0, 3);
   const displayName = linkedElderlyName || elderlyProfile.name;
+
+  const toggleChatExpansion = (dateStr: string) => {
+    setExpandedChats(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(dateStr)) {
+        newSet.delete(dateStr);
+      } else {
+        newSet.add(dateStr);
+      }
+      return newSet;
+    });
+  };
 
   return (
     <div className="min-h-screen bg-background pb-24 safe-area-top">
@@ -551,6 +569,70 @@ function CaregiverLogsContent() {
                         </p>
                       </div>
                     )}
+
+                    {/* View Chat Button */}
+                    {summary.conversations.length > 0 && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="mt-3 w-full text-xs"
+                        onClick={() => toggleChatExpansion(summary.dateStr)}
+                      >
+                        {expandedChats.has(summary.dateStr) ? (
+                          <>
+                            <EyeOff className="w-4 h-4 mr-1" />
+                            Hide Chat
+                          </>
+                        ) : (
+                          <>
+                            <Eye className="w-4 h-4 mr-1" />
+                            View Full Chat
+                          </>
+                        )}
+                      </Button>
+                    )}
+
+                    {/* Expanded Chat Messages */}
+                    <AnimatePresence>
+                      {expandedChats.has(summary.dateStr) && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="mt-4 border-t pt-4 space-y-3 max-h-80 overflow-y-auto"
+                        >
+                          {summary.conversations.map((conv) => (
+                            <div
+                              key={conv.id}
+                              className={`flex gap-2 ${
+                                conv.role === 'user' ? 'justify-start' : 'justify-end'
+                              }`}
+                            >
+                              <div
+                                className={`max-w-[85%] rounded-2xl px-3 py-2 ${
+                                  conv.role === 'user'
+                                    ? 'bg-primary/10 text-foreground'
+                                    : 'bg-muted text-foreground'
+                                }`}
+                              >
+                                <div className="flex items-center gap-1 mb-1">
+                                  <span className="text-xs font-medium">
+                                    {conv.role === 'user' ? `🧓 ${displayName}` : '🐕 Buddy'}
+                                  </span>
+                                  {conv.emotion_tag && (
+                                    <span className="text-sm">{emotionEmojis[conv.emotion_tag]}</span>
+                                  )}
+                                </div>
+                                <p className="text-sm">{conv.content}</p>
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  {format(new Date(conv.created_at), 'h:mm a')}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </motion.div>
                 );
               })}
