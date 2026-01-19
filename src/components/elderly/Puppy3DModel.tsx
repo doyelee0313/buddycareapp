@@ -46,13 +46,14 @@ function PuppyBody({ mood }: Puppy3DProps) {
     // Head bobbing - subtle and natural
     if (mood === 'excited') {
       headRef.current.rotation.z = Math.sin(time * 4) * 0.08;
-      headRef.current.position.y = 0.55 + Math.abs(Math.sin(time * 5)) * 0.03;
+      headRef.current.position.y = 0.48 + Math.abs(Math.sin(time * 5)) * 0.03;
     } else if (mood === 'sleeping') {
-      headRef.current.rotation.x = 0.15 + Math.sin(time * 0.5) * 0.02;
-      headRef.current.position.y = 0.5;
+      // Cute sleeping - head rests gently with slow breathing
+      headRef.current.rotation.x = 0.4 + Math.sin(time * 0.5) * 0.015;
+      headRef.current.position.y = 0.28;
     } else {
       headRef.current.rotation.z = Math.sin(time * 1.5) * 0.03;
-      headRef.current.position.y = 0.55;
+      headRef.current.position.y = 0.48;
     }
 
     // Tail wag
@@ -80,178 +81,182 @@ function PuppyBody({ mood }: Puppy3DProps) {
       scale={hovered ? 1.02 : 1}
     >
       {/* === BODY === */}
-      {/* Main body - elongated capsule */}
-      <mesh position={[0, 0.25, 0]} rotation={[0, 0, Math.PI / 2]}>
-        <capsuleGeometry args={[0.28, 0.5, 16, 16]} />
+      {/* Main body - slightly smaller, more compact */}
+      <mesh position={[0, 0.22, 0]} rotation={[0, 0, Math.PI / 2]}>
+        <capsuleGeometry args={[0.24, 0.4, 16, 16]} />
         <meshStandardMaterial color={colors.furMain} roughness={0.9} />
       </mesh>
       
       {/* Belly - slightly lighter */}
-      <mesh position={[0, 0.15, 0.12]} rotation={[0, 0, Math.PI / 2]}>
-        <capsuleGeometry args={[0.18, 0.35, 16, 16]} />
+      <mesh position={[0, 0.14, 0.1]} rotation={[0, 0, Math.PI / 2]}>
+        <capsuleGeometry args={[0.15, 0.28, 16, 16]} />
         <meshStandardMaterial color={colors.furLight} roughness={0.9} />
       </mesh>
 
       {/* Chest */}
-      <mesh position={[0, 0.3, 0.22]}>
-        <sphereGeometry args={[0.22, 16, 16]} />
+      <mesh position={[0, 0.26, 0.18]}>
+        <sphereGeometry args={[0.18, 16, 16]} />
         <meshStandardMaterial color={colors.furLight} roughness={0.9} />
       </mesh>
 
-      {/* Back hump */}
-      <mesh position={[0, 0.42, -0.05]}>
-        <sphereGeometry args={[0.18, 16, 16]} />
+      {/* Back hump - smaller */}
+      <mesh position={[0, 0.36, -0.03]}>
+        <sphereGeometry args={[0.14, 16, 16]} />
         <meshStandardMaterial color={colors.furDark} roughness={0.9} />
       </mesh>
 
       {/* === LEGS === */}
       {/* Front left leg */}
-      <group position={[-0.15, 0, 0.18]}>
-        <mesh position={[0, 0.12, 0]}>
-          <capsuleGeometry args={[0.07, 0.18, 8, 8]} />
+      <group position={[isAsleep ? -0.08 : -0.12, 0, isAsleep ? 0.22 : 0.15]}>
+        <mesh position={[0, 0.1, 0]} rotation={isAsleep ? [0.3, 0, 0.2] : [0, 0, 0]}>
+          <capsuleGeometry args={[0.055, 0.14, 8, 8]} />
           <meshStandardMaterial color={colors.furMain} roughness={0.9} />
         </mesh>
         {/* Paw */}
-        <mesh position={[0, -0.02, 0.02]}>
-          <sphereGeometry args={[0.08, 12, 12]} />
+        <mesh position={isAsleep ? [0.02, -0.01, 0.08] : [0, -0.02, 0.02]}>
+          <sphereGeometry args={[0.065, 12, 12]} />
           <meshStandardMaterial color={colors.furLight} roughness={0.9} />
         </mesh>
       </group>
 
       {/* Front right leg */}
-      <group position={[0.15, 0, 0.18]}>
-        <mesh position={[0, 0.12, 0]}>
-          <capsuleGeometry args={[0.07, 0.18, 8, 8]} />
+      <group position={[isAsleep ? 0.08 : 0.12, 0, isAsleep ? 0.22 : 0.15]}>
+        <mesh position={[0, 0.1, 0]} rotation={isAsleep ? [0.3, 0, -0.2] : [0, 0, 0]}>
+          <capsuleGeometry args={[0.055, 0.14, 8, 8]} />
           <meshStandardMaterial color={colors.furMain} roughness={0.9} />
         </mesh>
         {/* Paw */}
-        <mesh position={[0, -0.02, 0.02]}>
-          <sphereGeometry args={[0.08, 12, 12]} />
+        <mesh position={isAsleep ? [-0.02, -0.01, 0.08] : [0, -0.02, 0.02]}>
+          <sphereGeometry args={[0.065, 12, 12]} />
           <meshStandardMaterial color={colors.furLight} roughness={0.9} />
         </mesh>
       </group>
 
-      {/* Back left leg */}
-      <group position={[-0.18, 0, -0.22]}>
+      {/* Back left leg - smaller and tucked for sleeping */}
+      <group position={[-0.14, 0, -0.18]}>
         {/* Upper leg */}
-        <mesh position={[0, 0.15, 0]} rotation={[0.2, 0, 0]}>
-          <capsuleGeometry args={[0.08, 0.16, 8, 8]} />
+        <mesh position={[0, 0.12, 0]} rotation={isAsleep ? [0.8, 0, -0.3] : [0.2, 0, 0]}>
+          <capsuleGeometry args={[0.06, 0.12, 8, 8]} />
           <meshStandardMaterial color={colors.furMain} roughness={0.9} />
         </mesh>
         {/* Lower leg */}
-        <mesh position={[0, 0.02, 0.04]}>
-          <capsuleGeometry args={[0.065, 0.12, 8, 8]} />
+        <mesh position={isAsleep ? [-0.04, 0.06, 0.08] : [0, 0.02, 0.04]}>
+          <capsuleGeometry args={[0.05, 0.08, 8, 8]} />
           <meshStandardMaterial color={colors.furMain} roughness={0.9} />
         </mesh>
         {/* Paw */}
-        <mesh position={[0, -0.04, 0.06]}>
-          <sphereGeometry args={[0.075, 12, 12]} />
+        <mesh position={isAsleep ? [-0.06, 0.02, 0.1] : [0, -0.04, 0.06]}>
+          <sphereGeometry args={[0.055, 12, 12]} />
           <meshStandardMaterial color={colors.furLight} roughness={0.9} />
         </mesh>
       </group>
 
-      {/* Back right leg */}
-      <group position={[0.18, 0, -0.22]}>
+      {/* Back right leg - smaller and tucked for sleeping */}
+      <group position={[0.14, 0, -0.18]}>
         {/* Upper leg */}
-        <mesh position={[0, 0.15, 0]} rotation={[0.2, 0, 0]}>
-          <capsuleGeometry args={[0.08, 0.16, 8, 8]} />
+        <mesh position={[0, 0.12, 0]} rotation={isAsleep ? [0.8, 0, 0.3] : [0.2, 0, 0]}>
+          <capsuleGeometry args={[0.06, 0.12, 8, 8]} />
           <meshStandardMaterial color={colors.furMain} roughness={0.9} />
         </mesh>
         {/* Lower leg */}
-        <mesh position={[0, 0.02, 0.04]}>
-          <capsuleGeometry args={[0.065, 0.12, 8, 8]} />
+        <mesh position={isAsleep ? [0.04, 0.06, 0.08] : [0, 0.02, 0.04]}>
+          <capsuleGeometry args={[0.05, 0.08, 8, 8]} />
           <meshStandardMaterial color={colors.furMain} roughness={0.9} />
         </mesh>
         {/* Paw */}
-        <mesh position={[0, -0.04, 0.06]}>
-          <sphereGeometry args={[0.075, 12, 12]} />
+        <mesh position={isAsleep ? [0.06, 0.02, 0.1] : [0, -0.04, 0.06]}>
+          <sphereGeometry args={[0.055, 12, 12]} />
           <meshStandardMaterial color={colors.furLight} roughness={0.9} />
         </mesh>
       </group>
 
       {/* === TAIL === */}
-      <group ref={tailRef} position={[0, 0.35, -0.42]}>
-        <mesh rotation={[-0.8, 0, 0]}>
-          <capsuleGeometry args={[0.05, 0.22, 8, 8]} />
+      <group ref={tailRef} position={isAsleep ? [0.18, 0.18, -0.28] : [0, 0.3, -0.35]} rotation={isAsleep ? [0, 0, 0.8] : [0, 0, 0]}>
+        <mesh rotation={isAsleep ? [-0.2, 0, 0] : [-0.8, 0, 0]}>
+          <capsuleGeometry args={[0.04, 0.16, 8, 8]} />
           <meshStandardMaterial color={colors.furDark} roughness={0.9} />
         </mesh>
         {/* Tail tip - fluffier */}
-        <mesh position={[0, 0.18, -0.12]} rotation={[-0.6, 0, 0]}>
-          <sphereGeometry args={[0.06, 12, 12]} />
+        <mesh position={isAsleep ? [0.08, 0.06, 0] : [0, 0.14, -0.1]} rotation={isAsleep ? [0, 0, 0.3] : [-0.6, 0, 0]}>
+          <sphereGeometry args={[0.05, 12, 12]} />
           <meshStandardMaterial color={colors.furMain} roughness={0.9} />
         </mesh>
       </group>
 
       {/* === HEAD === */}
-      <group ref={headRef} position={[0, 0.55, 0.25]}>
+      <group 
+        ref={headRef} 
+        position={isAsleep ? [0, 0.28, 0.28] : [0, 0.48, 0.22]}
+        rotation={isAsleep ? [0.4, 0, 0] : [0, 0, 0]}
+      >
         {/* Main head */}
         <mesh>
-          <sphereGeometry args={[0.24, 24, 24]} />
+          <sphereGeometry args={[0.2, 24, 24]} />
           <meshStandardMaterial color={colors.furMain} roughness={0.85} />
         </mesh>
 
         {/* Forehead - slightly darker */}
-        <mesh position={[0, 0.12, -0.02]}>
-          <sphereGeometry args={[0.15, 16, 16]} />
+        <mesh position={[0, 0.1, -0.02]}>
+          <sphereGeometry args={[0.12, 16, 16]} />
           <meshStandardMaterial color={colors.furDark} roughness={0.85} />
         </mesh>
 
         {/* Snout/Muzzle */}
-        <mesh position={[0, -0.06, 0.18]}>
-          <sphereGeometry args={[0.14, 16, 16]} />
+        <mesh position={[0, -0.05, 0.15]}>
+          <sphereGeometry args={[0.11, 16, 16]} />
           <meshStandardMaterial color={colors.furMuzzle} roughness={0.85} />
         </mesh>
 
         {/* Snout top */}
-        <mesh position={[0, 0, 0.16]} rotation={[0.3, 0, 0]}>
-          <capsuleGeometry args={[0.08, 0.12, 8, 8]} />
+        <mesh position={[0, 0, 0.13]} rotation={[0.3, 0, 0]}>
+          <capsuleGeometry args={[0.065, 0.1, 8, 8]} />
           <meshStandardMaterial color={colors.furMain} roughness={0.85} />
         </mesh>
 
         {/* Nose */}
-        <mesh position={[0, -0.02, 0.3]}>
-          <sphereGeometry args={[0.055, 12, 12]} />
+        <mesh position={[0, -0.02, 0.24]}>
+          <sphereGeometry args={[0.045, 12, 12]} />
           <meshStandardMaterial color={colors.nose} roughness={0.3} metalness={0.2} />
         </mesh>
 
         {/* Nostrils hint */}
-        <mesh position={[-0.02, -0.03, 0.34]}>
-          <sphereGeometry args={[0.015, 8, 8]} />
+        <mesh position={[-0.015, -0.025, 0.27]}>
+          <sphereGeometry args={[0.012, 8, 8]} />
           <meshStandardMaterial color="#1a1512" />
         </mesh>
-        <mesh position={[0.02, -0.03, 0.34]}>
-          <sphereGeometry args={[0.015, 8, 8]} />
+        <mesh position={[0.015, -0.025, 0.27]}>
+          <sphereGeometry args={[0.012, 8, 8]} />
           <meshStandardMaterial color="#1a1512" />
         </mesh>
 
         {/* === EYES === */}
         {/* Left eye socket area */}
-        <mesh position={[-0.1, 0.04, 0.15]}>
-          <sphereGeometry args={[0.055, 16, 16]} />
+        <mesh position={[-0.08, 0.03, 0.12]}>
+          <sphereGeometry args={[0.045, 16, 16]} />
           <meshStandardMaterial color={colors.furDark} roughness={0.8} />
         </mesh>
         
         {/* Left eye */}
-        <group position={[-0.1, 0.04, 0.2]}>
-          <mesh>
-            <sphereGeometry args={[isAsleep ? 0.01 : 0.045, 16, 16]} />
-            <meshStandardMaterial color={colors.eyeWhite} roughness={0.3} />
-          </mesh>
+        <group position={[-0.08, 0.03, 0.16]}>
           {!isAsleep && (
             <>
+              <mesh>
+                <sphereGeometry args={[0.038, 16, 16]} />
+                <meshStandardMaterial color={colors.eyeWhite} roughness={0.3} />
+              </mesh>
               {/* Iris */}
-              <mesh position={[0, 0, 0.02]}>
-                <sphereGeometry args={[0.035, 16, 16]} />
+              <mesh position={[0, 0, 0.018]}>
+                <sphereGeometry args={[0.028, 16, 16]} />
                 <meshStandardMaterial color={colors.eyeIris} roughness={0.4} />
               </mesh>
               {/* Pupil */}
-              <mesh position={[0, 0, 0.038]}>
-                <sphereGeometry args={[0.018, 12, 12]} />
+              <mesh position={[0, 0, 0.032]}>
+                <sphereGeometry args={[0.014, 12, 12]} />
                 <meshStandardMaterial color={colors.eyePupil} />
               </mesh>
               {/* Highlight */}
-              <mesh position={[0.015, 0.015, 0.042]}>
-                <sphereGeometry args={[0.008, 8, 8]} />
+              <mesh position={[0.012, 0.012, 0.036]}>
+                <sphereGeometry args={[0.006, 8, 8]} />
                 <meshStandardMaterial 
                   color={colors.eyeShine} 
                   emissive={colors.eyeShine} 
@@ -260,42 +265,45 @@ function PuppyBody({ mood }: Puppy3DProps) {
               </mesh>
             </>
           )}
-          {/* Closed eye line for sleeping */}
+          {/* Cute closed eyes for sleeping - curved smile lines */}
           {isAsleep && (
-            <mesh position={[0, 0, 0.01]} rotation={[0, 0, 0.1]}>
-              <capsuleGeometry args={[0.008, 0.04, 4, 8]} />
-              <meshStandardMaterial color={colors.furDark} />
-            </mesh>
+            <group>
+              {/* Curved closed eye */}
+              <mesh position={[0, 0.01, 0.01]} rotation={[0.2, 0, 0.15]}>
+                <torusGeometry args={[0.025, 0.006, 8, 12, Math.PI]} />
+                <meshStandardMaterial color={colors.furDark} />
+              </mesh>
+            </group>
           )}
         </group>
 
         {/* Right eye socket area */}
-        <mesh position={[0.1, 0.04, 0.15]}>
-          <sphereGeometry args={[0.055, 16, 16]} />
+        <mesh position={[0.08, 0.03, 0.12]}>
+          <sphereGeometry args={[0.045, 16, 16]} />
           <meshStandardMaterial color={colors.furDark} roughness={0.8} />
         </mesh>
 
         {/* Right eye */}
-        <group position={[0.1, 0.04, 0.2]}>
-          <mesh>
-            <sphereGeometry args={[isAsleep ? 0.01 : 0.045, 16, 16]} />
-            <meshStandardMaterial color={colors.eyeWhite} roughness={0.3} />
-          </mesh>
+        <group position={[0.08, 0.03, 0.16]}>
           {!isAsleep && (
             <>
+              <mesh>
+                <sphereGeometry args={[0.038, 16, 16]} />
+                <meshStandardMaterial color={colors.eyeWhite} roughness={0.3} />
+              </mesh>
               {/* Iris */}
-              <mesh position={[0, 0, 0.02]}>
-                <sphereGeometry args={[0.035, 16, 16]} />
+              <mesh position={[0, 0, 0.018]}>
+                <sphereGeometry args={[0.028, 16, 16]} />
                 <meshStandardMaterial color={colors.eyeIris} roughness={0.4} />
               </mesh>
               {/* Pupil */}
-              <mesh position={[0, 0, 0.038]}>
-                <sphereGeometry args={[0.018, 12, 12]} />
+              <mesh position={[0, 0, 0.032]}>
+                <sphereGeometry args={[0.014, 12, 12]} />
                 <meshStandardMaterial color={colors.eyePupil} />
               </mesh>
               {/* Highlight */}
-              <mesh position={[0.015, 0.015, 0.042]}>
-                <sphereGeometry args={[0.008, 8, 8]} />
+              <mesh position={[0.012, 0.012, 0.036]}>
+                <sphereGeometry args={[0.006, 8, 8]} />
                 <meshStandardMaterial 
                   color={colors.eyeShine} 
                   emissive={colors.eyeShine} 
@@ -304,52 +312,55 @@ function PuppyBody({ mood }: Puppy3DProps) {
               </mesh>
             </>
           )}
-          {/* Closed eye line for sleeping */}
+          {/* Cute closed eyes for sleeping - curved smile lines */}
           {isAsleep && (
-            <mesh position={[0, 0, 0.01]} rotation={[0, 0, -0.1]}>
-              <capsuleGeometry args={[0.008, 0.04, 4, 8]} />
-              <meshStandardMaterial color={colors.furDark} />
-            </mesh>
+            <group>
+              {/* Curved closed eye */}
+              <mesh position={[0, 0.01, 0.01]} rotation={[0.2, 0, -0.15]}>
+                <torusGeometry args={[0.025, 0.006, 8, 12, Math.PI]} />
+                <meshStandardMaterial color={colors.furDark} />
+              </mesh>
+            </group>
           )}
         </group>
 
         {/* === EARS === */}
-        {/* Left ear */}
-        <group position={[-0.2, 0.08, -0.08]} rotation={[0.2, 0.3, -0.5]}>
+        {/* Left ear - floppier when sleeping */}
+        <group position={[-0.16, 0.06, -0.06]} rotation={isAsleep ? [0.4, 0.2, -0.8] : [0.2, 0.3, -0.5]}>
           <mesh>
-            <capsuleGeometry args={[0.08, 0.18, 8, 12]} />
+            <capsuleGeometry args={[0.065, 0.14, 8, 12]} />
             <meshStandardMaterial color={colors.furDark} roughness={0.9} />
           </mesh>
         </group>
 
         {/* Right ear */}
-        <group position={[0.2, 0.08, -0.08]} rotation={[0.2, -0.3, 0.5]}>
+        <group position={[0.16, 0.06, -0.06]} rotation={isAsleep ? [0.4, -0.2, 0.8] : [0.2, -0.3, 0.5]}>
           <mesh>
-            <capsuleGeometry args={[0.08, 0.18, 8, 12]} />
+            <capsuleGeometry args={[0.065, 0.14, 8, 12]} />
             <meshStandardMaterial color={colors.furDark} roughness={0.9} />
           </mesh>
         </group>
 
         {/* === MOUTH === */}
-        {/* Mouth line */}
-        {!isAsleep && (
-          <mesh position={[0, -0.12, 0.24]} rotation={[0.2, 0, 0]}>
-            <torusGeometry args={[0.04, 0.008, 8, 16, Math.PI]} />
+        {/* Mouth line - small smile when sleeping */}
+        {!isHappy && (
+          <mesh position={[0, -0.1, 0.19]} rotation={[0.2, 0, 0]}>
+            <torusGeometry args={[0.025, 0.006, 8, 16, Math.PI]} />
             <meshStandardMaterial color={colors.nose} />
           </mesh>
         )}
 
         {/* Open mouth with tongue for happy moods */}
         {isHappy && (
-          <group position={[0, -0.14, 0.22]}>
+          <group position={[0, -0.11, 0.18]}>
             {/* Mouth opening */}
             <mesh rotation={[0.4, 0, 0]}>
-              <sphereGeometry args={[0.06, 12, 12, 0, Math.PI * 2, 0, Math.PI / 2]} />
+              <sphereGeometry args={[0.05, 12, 12, 0, Math.PI * 2, 0, Math.PI / 2]} />
               <meshStandardMaterial color={colors.innerMouth} side={THREE.DoubleSide} />
             </mesh>
             {/* Tongue */}
-            <mesh ref={tongueRef} position={[0, -0.08, 0.03]} rotation={[0.6, 0, 0]}>
-              <capsuleGeometry args={[0.035, 0.06, 8, 8]} />
+            <mesh ref={tongueRef} position={[0, -0.06, 0.02]} rotation={[0.6, 0, 0]}>
+              <capsuleGeometry args={[0.028, 0.05, 8, 8]} />
               <meshStandardMaterial color={colors.tongue} roughness={0.6} />
             </mesh>
           </group>
@@ -357,9 +368,9 @@ function PuppyBody({ mood }: Puppy3DProps) {
       </group>
 
       {/* === GROUND SHADOW === */}
-      <mesh position={[0, -0.08, 0]} rotation={[-Math.PI / 2, 0, 0]} scale={[1.1, 0.9, 1]}>
-        <circleGeometry args={[0.35, 32]} />
-        <meshBasicMaterial color="#000000" transparent opacity={0.15} />
+      <mesh position={[0, -0.06, 0]} rotation={[-Math.PI / 2, 0, 0]} scale={[0.9, 0.7, 1]}>
+        <circleGeometry args={[0.3, 32]} />
+        <meshBasicMaterial color="#000000" transparent opacity={0.12} />
       </mesh>
     </group>
   );
