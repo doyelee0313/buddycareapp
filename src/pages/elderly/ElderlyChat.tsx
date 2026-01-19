@@ -8,7 +8,7 @@ import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 import { supabase } from '@/integrations/supabase/client';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import puppy3dHappy from '@/assets/puppy-3d-happy.png';
+import puppyMain from '@/assets/puppy-3d-main.png';
 import { ConversationMessage } from '@/types/app';
 import { toast } from 'sonner';
 
@@ -198,7 +198,7 @@ function ElderlyChatContent() {
           <ArrowLeft className="w-6 h-6" />
         </motion.button>
         <motion.img 
-          src={puppy3dHappy} 
+          src={puppyMain} 
           alt="Buddy" 
           className="w-14 h-14 rounded-full object-cover"
           animate={{ rotate: [0, 5, -5, 0] }}
@@ -239,7 +239,7 @@ function ElderlyChatContent() {
             animate={{ opacity: 1, y: 0 }}
           >
             <motion.img 
-              src={puppy3dHappy} 
+              src={puppyMain} 
               alt="Buddy" 
               className="w-24 h-24 rounded-full object-cover mb-4"
               animate={{ scale: [1, 1.05, 1] }}
