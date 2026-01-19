@@ -142,13 +142,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signInWithPin = async (name: string, pin: string) => {
     // For elderly users, we search by display_name and pin_code
     // Pad PIN to meet Supabase's 6-character minimum password requirement
-    const elderlyEmail = `${name.toLowerCase().replace(/\s+/g, '_')}@elderly.buddycare.app`;
     const paddedPin = `pin_${pin}`;
+    const normalizedName = name.toLowerCase().replace(/\s+/g, '_');
     
-    const { error } = await supabase.auth.signInWithPassword({
-      email: elderlyEmail,
+    // Try new domain first
+    const newDomainEmail = `${normalizedName}@elderly.buddycare.app`;
+    let { error } = await supabase.auth.signInWithPassword({
+      email: newDomainEmail,
       password: paddedPin,
     });
+    
+    // If failed, try old domain for backward compatibility
+    if (error?.message?.includes('Invalid login credentials')) {
+      const oldDomainEmail = `${normalizedName}@elderly.puppycare.app`;
+      const result = await supabase.auth.signInWithPassword({
+        email: oldDomainEmail,
+        password: paddedPin,
+      });
+      error = result.error;
+    }
     
     return { error };
   };
