@@ -308,10 +308,12 @@ function CaregiverLogsContent() {
       const dayMissions = missionCompletions.filter(m => 
         isSameDay(new Date(m.completed_at), date)
       );
+      // Get unique mission types only
+      const uniqueMissionTypes = [...new Set(dayMissions.map(m => m.mission_type))];
       stats.push({
         date,
-        missions: dayMissions.map(m => m.mission_type),
-        count: dayMissions.length,
+        missions: uniqueMissionTypes,
+        count: Math.min(uniqueMissionTypes.length, 4), // Cap at 4 missions max
       });
     }
     return stats;
