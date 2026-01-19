@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
-import puppyMain from '@/assets/puppy-3d-main.png';
+import buddycareLogo from '@/assets/buddycare-logo.png';
 
 export default function SplashScreen() {
   const navigate = useNavigate();
@@ -22,9 +22,9 @@ export default function SplashScreen() {
         transition={{ duration: 0.6 }}
       >
         <motion.img
-          src={puppyMain}
-          alt="PuppyCare Logo"
-          className="w-40 h-40 mx-auto mb-6 drop-shadow-lg"
+          src={buddycareLogo}
+          alt="BuddyCare Logo"
+          className="w-48 h-48 mx-auto mb-4 drop-shadow-xl rounded-3xl"
           animate={{ 
             y: [0, -10, 0],
             rotate: [-2, 2, -2]
@@ -33,11 +33,8 @@ export default function SplashScreen() {
             duration: 3, 
             repeat: Infinity,
             ease: 'easeInOut'
-          }}
+        }}
         />
-        <h1 className="text-4xl font-extrabold text-foreground mb-2">
-          BuddyCare
-        </h1>
         <p className="text-xl text-muted-foreground">
           Your AI Companion for Care
         </p>

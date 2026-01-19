@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import CaregiverAuthForm from '@/components/auth/CaregiverAuthForm';
 import ElderlyAuthForm from '@/components/auth/ElderlyAuthForm';
-import puppyHappy from '@/assets/puppy-3d-happy.png';
+import buddycareLogo from '@/assets/buddycare-logo.png';
 
 type AuthMode = 'select' | 'elderly' | 'caregiver';
 
@@ -28,10 +28,10 @@ export default function AuthPage() {
     return (
       <div className="min-h-screen bg-gradient-to-b from-background to-[hsl(35,60%,95%)] flex items-center justify-center">
         <motion.img
-          src={puppyHappy}
+          src={buddycareLogo}
           alt="Loading..."
-          className="w-32 h-32"
-          animate={{ rotate: [0, 10, -10, 0], scale: [1, 1.1, 1] }}
+          className="w-36 h-36 rounded-3xl"
+          animate={{ scale: [1, 1.05, 1] }}
           transition={{ duration: 1.5, repeat: Infinity }}
         />
       </div>
@@ -57,12 +57,11 @@ export default function AuthPage() {
               transition={{ duration: 0.6 }}
             >
               <motion.img
-                src={puppyHappy}
-                alt="PuppyCare Logo"
-                className="w-36 h-36 mx-auto mb-6 drop-shadow-xl"
+                src={buddycareLogo}
+                alt="BuddyCare Logo"
+                className="w-44 h-44 mx-auto mb-4 drop-shadow-xl rounded-3xl"
                 animate={{ 
-                  y: [0, -8, 0],
-                  rotate: [-2, 2, -2]
+                  y: [0, -8, 0]
                 }}
                 transition={{ 
                   duration: 3, 
@@ -70,9 +69,6 @@ export default function AuthPage() {
                   ease: 'easeInOut'
                 }}
               />
-              <h1 className="text-4xl font-extrabold text-foreground mb-2">
-                BuddyCare
-              </h1>
               <p className="text-xl text-muted-foreground">
                 Your AI Companion for Care
               </p>
