@@ -96,7 +96,7 @@ export default function CaregiverAuthForm({ onBack }: CaregiverAuthFormProps) {
         } else {
           toast({
             title: 'Account Created!',
-            description: 'Welcome to PuppyCare!',
+            description: 'Welcome to BuddyCare!',
           });
         }
       }
@@ -128,7 +128,7 @@ export default function CaregiverAuthForm({ onBack }: CaregiverAuthFormProps) {
           {isLogin ? 'Caregiver Login' : 'Create Account'}
         </h2>
         <p className="text-muted-foreground mt-2">
-          {isLogin ? 'Access your caregiver dashboard' : 'Join the PuppyCare team'}
+          {isLogin ? 'Access your caregiver dashboard' : 'Join the BuddyCare team'}
         </p>
       </div>
 
