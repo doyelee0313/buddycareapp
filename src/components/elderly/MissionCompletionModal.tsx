@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Camera, Upload, Check, X, Dumbbell, Heart, Undo2 } from 'lucide-react';
+import { Camera, Upload, Check, X, Dumbbell, Heart } from 'lucide-react';
 import { Mission } from '@/types/app';
 import {
   Dialog,
@@ -19,7 +19,6 @@ interface MissionCompletionModalProps {
   isCompleted: boolean;
   onClose: () => void;
   onComplete: (missionId: string) => void;
-  onCancel: (missionId: string) => void;
 }
 
 const moodEmojis = [
@@ -40,7 +39,7 @@ const exerciseTypes = [
   { icon: '🏋️', label: 'Exercises' },
 ];
 
-export function MissionCompletionModal({ mission, open, isCompleted, onClose, onComplete, onCancel }: MissionCompletionModalProps) {
+export function MissionCompletionModal({ mission, open, isCompleted, onClose, onComplete }: MissionCompletionModalProps) {
   const { user } = useAuth();
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [selectedExercise, setSelectedExercise] = useState<string | null>(null);
@@ -99,7 +98,7 @@ export function MissionCompletionModal({ mission, open, isCompleted, onClose, on
 
   if (!mission) return null;
 
-  // Show cancel UI for completed missions
+  // Show completed state for completed missions
   if (isCompleted) {
     return (
       <Dialog open={open} onOpenChange={resetAndClose}>
@@ -128,22 +127,7 @@ export function MissionCompletionModal({ mission, open, isCompleted, onClose, on
               <p className="text-xl text-muted-foreground">
                 This mission is completed! 🎉
               </p>
-              <p className="text-sm text-muted-foreground/70 mt-2">
-                Need to undo this?
-              </p>
             </div>
-            
-            <Button
-              variant="outline"
-              className="w-full h-16 text-xl rounded-2xl border-destructive text-destructive hover:bg-destructive/10"
-              onClick={() => {
-                onCancel(mission.id);
-                resetAndClose();
-              }}
-            >
-              <Undo2 className="w-6 h-6 mr-2" />
-              Cancel Mission
-            </Button>
           </motion.div>
         </DialogContent>
       </Dialog>
