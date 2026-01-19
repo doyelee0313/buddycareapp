@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
-import puppyHappy from '@/assets/puppy-happy.png';
+import puppyMain from '@/assets/puppy-3d-main.png';
 
 export default function SplashScreen() {
   const navigate = useNavigate();
@@ -22,7 +22,7 @@ export default function SplashScreen() {
         transition={{ duration: 0.6 }}
       >
         <motion.img
-          src={puppyHappy}
+          src={puppyMain}
           alt="PuppyCare Logo"
           className="w-40 h-40 mx-auto mb-6 drop-shadow-lg"
           animate={{ 
