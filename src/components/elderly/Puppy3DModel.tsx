@@ -81,27 +81,27 @@ function PuppyBody({ mood }: Puppy3DProps) {
       scale={hovered ? 1.02 : 1}
     >
       {/* === BODY === */}
-      {/* Main body - slightly smaller, more compact */}
-      <mesh position={[0, 0.22, 0]} rotation={[0, 0, Math.PI / 2]}>
-        <capsuleGeometry args={[0.24, 0.4, 16, 16]} />
+      {/* Main body - tapered towards back */}
+      <mesh position={[0, 0.22, 0.05]} rotation={[0, 0, Math.PI / 2]}>
+        <capsuleGeometry args={[0.2, 0.32, 16, 16]} />
         <meshStandardMaterial color={colors.furMain} roughness={0.9} />
       </mesh>
       
       {/* Belly - slightly lighter */}
       <mesh position={[0, 0.14, 0.1]} rotation={[0, 0, Math.PI / 2]}>
-        <capsuleGeometry args={[0.15, 0.28, 16, 16]} />
+        <capsuleGeometry args={[0.12, 0.22, 16, 16]} />
         <meshStandardMaterial color={colors.furLight} roughness={0.9} />
       </mesh>
 
-      {/* Chest */}
+      {/* Chest - keeps prominence */}
       <mesh position={[0, 0.26, 0.18]}>
         <sphereGeometry args={[0.18, 16, 16]} />
         <meshStandardMaterial color={colors.furLight} roughness={0.9} />
       </mesh>
 
-      {/* Back hump - smaller */}
-      <mesh position={[0, 0.36, -0.03]}>
-        <sphereGeometry args={[0.14, 16, 16]} />
+      {/* Back/butt - much smaller */}
+      <mesh position={[0, 0.28, -0.12]}>
+        <sphereGeometry args={[0.1, 16, 16]} />
         <meshStandardMaterial color={colors.furDark} roughness={0.9} />
       </mesh>
 
