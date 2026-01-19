@@ -56,7 +56,7 @@ export default function ElderlyAuthForm({ onBack }: ElderlyAuthFormProps) {
         }
       } else {
         // For signup, generate email from name and pad PIN for Supabase's 6-char minimum
-        const elderlyEmail = `${name.toLowerCase().replace(/\s+/g, '_')}@elderly.puppycare.app`;
+        const elderlyEmail = `${name.toLowerCase().replace(/\s+/g, '_')}@elderly.buddycare.app`;
         const paddedPin = `pin_${pin}`;
         const { error } = await signUp(elderlyEmail, paddedPin, name, 'elderly', pin, caregiverCode || undefined);
         if (error) {
@@ -67,7 +67,7 @@ export default function ElderlyAuthForm({ onBack }: ElderlyAuthFormProps) {
           }
         } else {
           toast({
-            title: 'Welcome to PuppyCare! 🐕',
+            title: 'Welcome to BuddyCare! 🐕',
             description: 'Your account has been created successfully!',
           });
         }

@@ -142,7 +142,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signInWithPin = async (name: string, pin: string) => {
     // For elderly users, we search by display_name and pin_code
     // Pad PIN to meet Supabase's 6-character minimum password requirement
-    const elderlyEmail = `${name.toLowerCase().replace(/\s+/g, '_')}@elderly.puppycare.app`;
+    const elderlyEmail = `${name.toLowerCase().replace(/\s+/g, '_')}@elderly.buddycare.app`;
     const paddedPin = `pin_${pin}`;
     
     const { error } = await supabase.auth.signInWithPassword({

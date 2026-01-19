@@ -71,7 +71,7 @@ export default function AuthPage() {
                 }}
               />
               <h1 className="text-4xl font-extrabold text-foreground mb-2">
-                PuppyCare
+                BuddyCare
               </h1>
               <p className="text-xl text-muted-foreground">
                 Your AI Companion for Care
