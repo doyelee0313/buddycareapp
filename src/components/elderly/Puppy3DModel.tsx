@@ -171,14 +171,15 @@ function PuppyBody({ mood }: Puppy3DProps) {
       </group>
 
       {/* === TAIL === */}
-      <group ref={tailRef} position={isAsleep ? [0.18, 0.18, -0.28] : [0, 0.3, -0.35]} rotation={isAsleep ? [0, 0, 0.8] : [0, 0, 0]}>
-        <mesh rotation={isAsleep ? [-0.2, 0, 0] : [-0.8, 0, 0]}>
-          <capsuleGeometry args={[0.04, 0.16, 8, 8]} />
+      {/* Tail attached to the back/butt - positioned at butt level */}
+      <group ref={tailRef} position={isAsleep ? [0.12, 0.22, -0.14] : [0, 0.26, -0.16]} rotation={isAsleep ? [0, 0, 0.8] : [0, 0, 0]}>
+        <mesh rotation={isAsleep ? [-0.2, 0, 0] : [-0.6, 0, 0]}>
+          <capsuleGeometry args={[0.04, 0.14, 8, 8]} />
           <meshStandardMaterial color={colors.furDark} roughness={0.9} />
         </mesh>
         {/* Tail tip - fluffier */}
-        <mesh position={isAsleep ? [0.08, 0.06, 0] : [0, 0.14, -0.1]} rotation={isAsleep ? [0, 0, 0.3] : [-0.6, 0, 0]}>
-          <sphereGeometry args={[0.05, 12, 12]} />
+        <mesh position={isAsleep ? [0.06, 0.04, 0] : [0, 0.12, -0.06]} rotation={isAsleep ? [0, 0, 0.3] : [-0.5, 0, 0]}>
+          <sphereGeometry args={[0.045, 12, 12]} />
           <meshStandardMaterial color={colors.furMain} roughness={0.9} />
         </mesh>
       </group>
@@ -376,7 +377,7 @@ function PuppyBody({ mood }: Puppy3DProps) {
   );
 }
 
-// Floating hearts for love mood
+// Floating hearts for love mood - positioned closer to the puppy
 function FloatingHearts() {
   return (
     <group>
@@ -385,14 +386,14 @@ function FloatingHearts() {
           key={i}
           speed={2 + i * 0.3}
           rotationIntensity={0.2}
-          floatIntensity={1}
+          floatIntensity={0.8}
           position={[
-            (i - 1) * 0.4,
-            1.1 + i * 0.1,
-            0.3
+            (i - 1) * 0.25,
+            0.55 + i * 0.08,
+            0.15
           ]}
         >
-          <mesh scale={0.04 + i * 0.01}>
+          <mesh scale={0.035 + i * 0.008}>
             <sphereGeometry args={[1, 8, 8]} />
             <meshStandardMaterial 
               color="#FF6B8A" 
@@ -406,7 +407,7 @@ function FloatingHearts() {
   );
 }
 
-// Sparkles for excited mood
+// Sparkles for excited mood - positioned closer around the puppy
 function Sparkles() {
   return (
     <group>
@@ -415,14 +416,14 @@ function Sparkles() {
           key={i}
           speed={3 + i}
           rotationIntensity={2}
-          floatIntensity={1.5}
+          floatIntensity={1}
           position={[
-            Math.sin((i * Math.PI * 2) / 4) * 0.5,
-            0.9 + (i % 2) * 0.2,
-            Math.cos((i * Math.PI * 2) / 4) * 0.3 + 0.2
+            Math.sin((i * Math.PI * 2) / 4) * 0.3,
+            0.45 + (i % 2) * 0.15,
+            Math.cos((i * Math.PI * 2) / 4) * 0.2 + 0.1
           ]}
         >
-          <mesh scale={0.03}>
+          <mesh scale={0.025}>
             <octahedronGeometry args={[1, 0]} />
             <meshStandardMaterial 
               color={i % 2 === 0 ? '#FFD700' : '#FFF4B8'}
