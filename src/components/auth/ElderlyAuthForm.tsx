@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import puppyHappy from '@/assets/puppy-3d-happy.png';
+import buddycareLogo from '@/assets/buddycare-logo.png';
 
 interface ElderlyAuthFormProps {
   onBack: () => void;
@@ -100,12 +100,12 @@ export default function ElderlyAuthForm({ onBack }: ElderlyAuthFormProps) {
         <span className="text-xl">Back</span>
       </button>
 
-      {/* Header with Puppy */}
+      {/* Header with Logo */}
       <div className="text-center mb-6">
         <motion.img
-          src={puppyHappy}
-          alt="Friendly puppy"
-          className="w-24 h-24 mx-auto mb-4"
+          src={buddycareLogo}
+          alt="BuddyCare"
+          className="w-28 h-28 mx-auto mb-4 rounded-2xl"
           animate={{ y: [0, -5, 0] }}
           transition={{ duration: 2, repeat: Infinity }}
         />
