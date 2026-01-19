@@ -1,6 +1,6 @@
 import { useRef, useState, useMemo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, Environment, Float } from '@react-three/drei';
+import { Environment, Float } from '@react-three/drei';
 import * as THREE from 'three';
 
 interface Puppy3DProps {
@@ -472,8 +472,8 @@ function Scene({ mood }: Puppy3DProps) {
       <pointLight position={[-2, 2, 2]} intensity={0.4} color="#FFE4C4" />
       <hemisphereLight args={['#87CEEB', '#8B7355', 0.3]} />
       
-      {/* Puppy positioned on ground */}
-      <group position={[0, -0.3, 0]}>
+      {/* Puppy positioned lower so effects stay on screen */}
+      <group position={[0, -0.5, 0]}>
         <PuppyBody mood={mood} />
       </group>
 
@@ -482,16 +482,6 @@ function Scene({ mood }: Puppy3DProps) {
       {(mood === 'excited' || mood === 'smiling' || mood === 'love') && <Sparkles />}
       {mood === 'sleeping' && <SleepingZs />}
 
-      {/* Controls - no auto-rotate, limited movement */}
-      <OrbitControls 
-        enableZoom={false} 
-        enablePan={false}
-        minPolarAngle={Math.PI / 3}
-        maxPolarAngle={Math.PI / 2}
-        minAzimuthAngle={-Math.PI / 4}
-        maxAzimuthAngle={Math.PI / 4}
-        autoRotate={false}
-      />
       <Environment preset="apartment" />
     </>
   );
