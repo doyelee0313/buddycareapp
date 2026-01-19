@@ -39,9 +39,9 @@ export function PuppyCharacter({ mood, onClick, size = 'large' }: PuppyCharacter
       onClick={onClick}
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
-      initial={{ opacity: 0, scale: 0.8 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.5, ease: 'backOut' }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
     >
       <Suspense fallback={<LoadingFallback size={size} />}>
         <Puppy3DModel mood={mood} />
