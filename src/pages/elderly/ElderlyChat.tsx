@@ -160,10 +160,27 @@ function ElderlyChatContent() {
     setCurrentTranscript(topic);
   };
 
-  const conversationStarters = [
-    { label: '🍲 Favorite Food', prompt: "Let's talk about my favorite food" },
-    { label: '💭 Memories', prompt: "I'd like to share a memory with you" },
+  // Random conversation topics for elderly - pick 2 random ones each time
+  const allTopics = [
+    { label: '🌅 My Best Day', prompt: "Tell me, what was the happiest day of your life?" },
+    { label: '🏠 Home Stories', prompt: "What was your childhood home like?" },
+    { label: '👨‍👩‍👧 Family Tales', prompt: "Tell me about your family traditions" },
+    { label: '🎵 Favorite Music', prompt: "What songs bring back good memories for you?" },
+    { label: '🍳 Secret Recipe', prompt: "What's your favorite dish to cook or eat?" },
+    { label: '✈️ Travel Dreams', prompt: "What's the most beautiful place you've ever visited?" },
+    { label: '💼 Life Lessons', prompt: "What's the best advice you've ever received?" },
+    { label: '🌟 Proud Moments', prompt: "What achievement are you most proud of?" },
+    { label: '👫 Old Friends', prompt: "Tell me about your best friend growing up" },
+    { label: '🎄 Holidays', prompt: "What's your favorite holiday memory?" },
+    { label: '📚 Good Books', prompt: "What book or story has stayed with you?" },
+    { label: '🌻 Simple Joys', prompt: "What small things make you happiest?" },
   ];
+  
+  // Get 2 random topics
+  const [conversationStarters] = useState(() => {
+    const shuffled = [...allTopics].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, 2);
+  });
 
   return (
     <div className="min-h-screen bg-background flex flex-col safe-area-top safe-area-bottom">
