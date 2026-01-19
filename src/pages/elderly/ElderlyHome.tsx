@@ -141,9 +141,8 @@ function ElderlyHomeContent() {
         {/* Puppy Section */}
         <motion.div 
           className="flex flex-col items-center my-8 bg-puppy-bg rounded-[3rem] py-8 px-4"
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.1 }}
+          initial={{ opacity: 1 }}
+          animate={{ opacity: 1 }}
         >
           <motion.p 
             className="text-elderly-lg text-center text-muted-foreground mb-4"
