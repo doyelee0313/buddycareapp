@@ -66,7 +66,7 @@ function PuppyBody({ mood }: Puppy3DProps) {
     // Tongue panting for happy moods
     if (tongueRef.current && (mood === 'smiling' || mood === 'excited' || mood === 'love')) {
       tongueRef.current.scale.y = 1 + Math.sin(time * 6) * 0.15;
-      tongueRef.current.position.y = -0.08 + Math.sin(time * 6) * 0.01;
+      tongueRef.current.position.y = -0.03 + Math.sin(time * 6) * 0.008;
     }
   });
 
@@ -359,8 +359,8 @@ function PuppyBody({ mood }: Puppy3DProps) {
               <meshStandardMaterial color={colors.innerMouth} side={THREE.DoubleSide} />
             </mesh>
             {/* Tongue */}
-            <mesh ref={tongueRef} position={[0, -0.06, 0.02]} rotation={[0.6, 0, 0]}>
-              <capsuleGeometry args={[0.028, 0.05, 8, 8]} />
+            <mesh ref={tongueRef} position={[0, -0.03, 0.03]} rotation={[0.5, 0, 0]}>
+              <capsuleGeometry args={[0.025, 0.045, 8, 8]} />
               <meshStandardMaterial color={colors.tongue} roughness={0.6} />
             </mesh>
           </group>
