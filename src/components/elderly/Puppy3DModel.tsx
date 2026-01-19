@@ -477,8 +477,8 @@ function Scene({ mood }: Puppy3DProps) {
       </group>
 
       {/* Mood effects */}
-      {mood === 'love' && <FloatingHearts />}
-      {(mood === 'excited' || mood === 'smiling') && <Sparkles />}
+      {(mood === 'love' || mood === 'excited') && <FloatingHearts />}
+      {(mood === 'excited' || mood === 'smiling' || mood === 'love') && <Sparkles />}
       {mood === 'sleeping' && <SleepingZs />}
 
       {/* Controls - no auto-rotate, limited movement */}
