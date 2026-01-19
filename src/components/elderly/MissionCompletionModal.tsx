@@ -102,7 +102,7 @@ export function MissionCompletionModal({ mission, open, isCompleted, onClose, on
   if (isCompleted) {
     return (
       <Dialog open={open} onOpenChange={resetAndClose}>
-        <DialogContent className="max-w-md mx-4 rounded-3xl p-6">
+        <DialogContent className="w-[calc(100%-2rem)] max-w-md rounded-3xl p-6">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold flex items-center gap-3">
               <span className="text-4xl">{mission.icon}</span>
@@ -314,7 +314,7 @@ export function MissionCompletionModal({ mission, open, isCompleted, onClose, on
 
   return (
     <Dialog open={open} onOpenChange={resetAndClose}>
-      <DialogContent className="max-w-md mx-4 rounded-3xl p-6">
+      <DialogContent className="w-[calc(100%-2rem)] max-w-md rounded-3xl p-6">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold flex items-center gap-3">
             <span className="text-4xl">{mission.icon}</span>
