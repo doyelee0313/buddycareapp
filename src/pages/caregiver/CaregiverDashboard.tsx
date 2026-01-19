@@ -10,9 +10,9 @@ import { InactivityAlert } from '@/components/caregiver/InactivityAlert';
 import { RewardModal } from '@/components/caregiver/RewardModal';
 import { supabase } from '@/integrations/supabase/client';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import puppy3dSmiling from '@/assets/puppy-3d-smiling.png';
-import puppy3dSleepy from '@/assets/puppy-3d-sleepy.png';
-import puppy3dLove from '@/assets/puppy-3d-love.png';
+import puppySmiling from '@/assets/puppy-static-smiling.png';
+import puppySleepy from '@/assets/puppy-static-sleepy.png';
+import puppyLove from '@/assets/puppy-static-love.png';
 import { toast } from 'sonner';
 
 interface MissionCompletion {
@@ -154,9 +154,9 @@ function CaregiverDashboardContent() {
   }, [fetchData]);
   
   const getPuppyStatus = () => {
-    if (completedMissions === 0) return { text: 'Puppy is sleeping', status: 'warning', image: puppy3dSleepy };
-    if (completedMissions < 3) return { text: 'Puppy is smiling', status: 'warning', image: puppy3dSmiling };
-    return { text: 'Puppy is so happy!', status: 'good', image: puppy3dLove };
+    if (completedMissions === 0) return { text: 'Puppy is sleeping', status: 'warning', image: puppySleepy };
+    if (completedMissions < 3) return { text: 'Puppy is smiling', status: 'warning', image: puppySmiling };
+    return { text: 'Puppy is so happy!', status: 'good', image: puppyLove };
   };
 
   const puppyStatus = getPuppyStatus();
