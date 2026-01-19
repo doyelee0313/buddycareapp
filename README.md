@@ -2,6 +2,11 @@
 
 Develop a solution that improve relationships between caregiver and the care recipient so that caregivers can provide the care that the care recipients want/need in a mutually respectful, meaningful, and joyful way?
 
+<img width="698" height="698" alt="logo new" src="https://github.com/user-attachments/assets/47609040-c6bb-4f5b-b747-f88162cd1ba4" />
+
+
+---
+
 ## Inspiration
 
 The global aging population faces a growing challenge: **loneliness and disconnection from caregivers**. We saw family members struggling to stay connected with elderly loved ones while balancing busy lives, and seniors feeling isolated between caregiver visits. We asked ourselves: *What if we could create a companion that's always there, one that brings joy, encourages healthy habits, and keeps families connected?*
