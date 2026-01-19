@@ -130,7 +130,7 @@ export default function ElderlyAuthForm({ onBack }: ElderlyAuthFormProps) {
             setName(e.target.value);
             setError('');
           }}
-          className="h-16 text-2xl text-center font-semibold rounded-2xl border-2 border-muted focus:border-primary"
+          className="h-20 text-4xl text-center font-bold rounded-2xl border-2 border-muted focus:border-primary"
         />
       </div>
 
