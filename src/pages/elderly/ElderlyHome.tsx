@@ -116,32 +116,6 @@ function ElderlyHomeContent() {
     }
   };
 
-  const handleMissionCancel = async (missionId: string) => {
-    if (!user) return;
-    const mission = elderlyProfile.missions.find(m => m.id === missionId);
-    if (mission) {
-      // Remove from local state
-      setCompletedMissionTypes(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(mission.type);
-        return newSet;
-      });
-      
-      // Delete from database
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      
-      await supabase
-        .from('mission_completions')
-        .delete()
-        .eq('user_id', user.id)
-        .eq('mission_type', mission.type)
-        .gte('completed_at', today.toISOString());
-      
-      completeMission(missionId); // Toggle off in app context
-    }
-  };
-
   return (
     <div className="min-h-screen bg-background pb-24 safe-area-top">
       <div className="max-w-lg mx-auto px-4 py-6">
@@ -220,7 +194,6 @@ function ElderlyHomeContent() {
         isCompleted={selectedMission ? completedMissionTypes.has(selectedMission.type) : false}
         onClose={() => setSelectedMission(null)}
         onComplete={handleMissionComplete}
-        onCancel={handleMissionCancel}
       />
 
       {/* Heart Button */}
