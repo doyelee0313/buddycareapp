@@ -282,7 +282,7 @@ export function PatientSummaryCard() {
           <div className="p-6 space-y-5">
             <div>
               <label className="text-sm font-medium text-muted-foreground mb-2 flex items-center gap-2">
-                <Heart className="w-4 h-4" /> Chronic Diseases
+                <Heart className="w-4 h-4" /> Medical Diseases
               </label>
               <Input
                 placeholder="e.g., Diabetes, Hypertension (comma separated)"
