@@ -7,23 +7,30 @@ interface Puppy3DProps {
   mood: 'sleeping' | 'awake' | 'smiling' | 'excited' | 'love';
 }
 
-// Main puppy body mesh
+// Cute golden retriever puppy body
 function PuppyBody({ mood }: Puppy3DProps) {
   const bodyRef = useRef<THREE.Group>(null);
   const tailRef = useRef<THREE.Mesh>(null);
   const earLeftRef = useRef<THREE.Mesh>(null);
   const earRightRef = useRef<THREE.Mesh>(null);
+  const tongueRef = useRef<THREE.Mesh>(null);
   const [hovered, setHovered] = useState(false);
   
-  // Colors based on mood
-  const colors = useMemo(() => {
-    const baseColor = '#D4A574'; // Warm brown for puppy
-    const noseColor = '#2D2D2D';
-    const eyeColor = '#1a1a1a';
-    const tongueColor = '#FF6B8A';
-    const cheekColor = '#FFAA80';
-    return { baseColor, noseColor, eyeColor, tongueColor, cheekColor };
-  }, []);
+  // Golden retriever colors - matching the cute 2D style
+  const colors = useMemo(() => ({
+    furMain: '#F5D89A',      // Golden cream fur
+    furLight: '#FFF2CC',     // Lighter accents
+    furDark: '#E8C878',      // Darker shading areas
+    nose: '#3D2817',         // Dark brown nose
+    eyeWhite: '#FFFFFF',
+    eyeIris: '#8B4513',      // Warm brown eyes
+    eyePupil: '#1a1a1a',
+    eyeShine: '#FFFFFF',
+    tongue: '#FF9CAD',       // Pink tongue
+    cheek: '#FFCAB0',        // Rosy cheeks
+    innerEar: '#FFDFCC',     // Inner ear pink
+    eyebrow: '#C9A65C',      // Eyebrow color
+  }), []);
 
   // Animation based on mood
   useFrame((state) => {
@@ -31,162 +38,284 @@ function PuppyBody({ mood }: Puppy3DProps) {
     
     const time = state.clock.elapsedTime;
     
-    // Body bounce animation
+    // Body bounce animation - more bouncy and cute
     switch (mood) {
       case 'sleeping':
-        bodyRef.current.rotation.z = Math.sin(time * 0.5) * 0.05;
-        bodyRef.current.position.y = Math.sin(time * 0.3) * 0.02;
+        bodyRef.current.rotation.z = Math.sin(time * 0.5) * 0.03;
+        bodyRef.current.position.y = Math.sin(time * 0.4) * 0.015;
         break;
       case 'awake':
-        bodyRef.current.position.y = Math.sin(time * 2) * 0.05;
+        bodyRef.current.position.y = Math.sin(time * 2.5) * 0.04;
+        bodyRef.current.rotation.z = Math.sin(time * 1.5) * 0.02;
         break;
       case 'smiling':
-        bodyRef.current.position.y = Math.sin(time * 2.5) * 0.08;
-        bodyRef.current.rotation.z = Math.sin(time * 2) * 0.03;
+        bodyRef.current.position.y = Math.sin(time * 3) * 0.06;
+        bodyRef.current.rotation.z = Math.sin(time * 2) * 0.04;
         break;
       case 'excited':
-        bodyRef.current.position.y = Math.abs(Math.sin(time * 5)) * 0.15;
-        bodyRef.current.rotation.z = Math.sin(time * 8) * 0.1;
+        bodyRef.current.position.y = Math.abs(Math.sin(time * 6)) * 0.12;
+        bodyRef.current.rotation.z = Math.sin(time * 10) * 0.08;
         break;
       case 'love':
-        bodyRef.current.position.y = Math.sin(time * 3) * 0.1;
-        bodyRef.current.scale.setScalar(1 + Math.sin(time * 4) * 0.02);
+        bodyRef.current.position.y = Math.sin(time * 3.5) * 0.08;
+        bodyRef.current.scale.setScalar(1 + Math.sin(time * 4) * 0.03);
         break;
     }
 
-    // Tail wag
+    // Tail wag - more enthusiastic
     if (tailRef.current) {
-      const wagSpeed = mood === 'excited' ? 12 : mood === 'love' ? 8 : mood === 'sleeping' ? 1 : 4;
-      const wagAmount = mood === 'excited' ? 0.8 : mood === 'love' ? 0.5 : mood === 'sleeping' ? 0.1 : 0.3;
+      const wagSpeed = mood === 'excited' ? 15 : mood === 'love' ? 10 : mood === 'sleeping' ? 0.5 : 6;
+      const wagAmount = mood === 'excited' ? 1.0 : mood === 'love' ? 0.7 : mood === 'sleeping' ? 0.05 : 0.4;
       tailRef.current.rotation.z = Math.sin(time * wagSpeed) * wagAmount;
+      tailRef.current.rotation.x = 0.3 + Math.sin(time * wagSpeed * 0.5) * 0.1;
     }
 
-    // Ear movement
+    // Ear movement - floppy and cute
     if (earLeftRef.current && earRightRef.current) {
-      const earMove = mood === 'sleeping' ? 0.02 : mood === 'excited' ? 0.15 : 0.05;
-      earLeftRef.current.rotation.z = Math.sin(time * 2 + 1) * earMove - 0.3;
-      earRightRef.current.rotation.z = Math.sin(time * 2) * earMove + 0.3;
+      const earMove = mood === 'sleeping' ? 0.01 : mood === 'excited' ? 0.12 : 0.05;
+      const earBounce = mood === 'excited' ? Math.abs(Math.sin(time * 6)) * 0.1 : 0;
+      earLeftRef.current.rotation.z = -0.4 + Math.sin(time * 2 + 1) * earMove;
+      earLeftRef.current.position.y = 0.15 + earBounce;
+      earRightRef.current.rotation.z = 0.4 + Math.sin(time * 2) * earMove;
+      earRightRef.current.position.y = 0.15 + earBounce;
+    }
+
+    // Tongue movement for happy moods
+    if (tongueRef.current && (mood === 'smiling' || mood === 'excited')) {
+      tongueRef.current.position.y = -0.12 + Math.sin(time * 4) * 0.02;
+      tongueRef.current.scale.y = 1 + Math.sin(time * 3) * 0.1;
     }
   });
+
+  const isHappy = mood === 'smiling' || mood === 'excited' || mood === 'love';
+  const isAsleep = mood === 'sleeping';
 
   return (
     <group 
       ref={bodyRef}
       onPointerOver={() => setHovered(true)}
       onPointerOut={() => setHovered(false)}
+      scale={hovered ? 1.02 : 1}
     >
-      {/* Main body */}
-      <mesh position={[0, -0.3, 0]}>
-        <sphereGeometry args={[0.6, 32, 32]} />
+      {/* Main body - chubby and round */}
+      <mesh position={[0, -0.35, 0]}>
+        <sphereGeometry args={[0.45, 32, 32]} />
         <MeshDistortMaterial
-          color={colors.baseColor}
-          roughness={0.8}
-          distort={hovered ? 0.15 : 0.05}
+          color={colors.furMain}
+          roughness={0.9}
+          distort={hovered ? 0.08 : 0.02}
           speed={2}
         />
       </mesh>
 
-      {/* Head */}
-      <mesh position={[0, 0.35, 0]}>
-        <sphereGeometry args={[0.5, 32, 32]} />
-        <meshStandardMaterial color={colors.baseColor} roughness={0.7} />
+      {/* Chest fluff - lighter color */}
+      <mesh position={[0, -0.25, 0.25]}>
+        <sphereGeometry args={[0.25, 32, 32]} />
+        <meshStandardMaterial color={colors.furLight} roughness={0.9} />
       </mesh>
 
-      {/* Snout */}
-      <mesh position={[0, 0.2, 0.4]}>
-        <sphereGeometry args={[0.2, 32, 32]} />
-        <meshStandardMaterial color={colors.baseColor} roughness={0.7} />
+      {/* Head - big and round for cuteness */}
+      <mesh position={[0, 0.25, 0.05]}>
+        <sphereGeometry args={[0.45, 32, 32]} />
+        <meshStandardMaterial color={colors.furMain} roughness={0.85} />
       </mesh>
 
-      {/* Nose */}
-      <mesh position={[0, 0.22, 0.58]}>
+      {/* Cheek puffs - make face rounder */}
+      <mesh position={[-0.28, 0.12, 0.25]}>
+        <sphereGeometry args={[0.18, 32, 32]} />
+        <meshStandardMaterial color={colors.furMain} roughness={0.85} />
+      </mesh>
+      <mesh position={[0.28, 0.12, 0.25]}>
+        <sphereGeometry args={[0.18, 32, 32]} />
+        <meshStandardMaterial color={colors.furMain} roughness={0.85} />
+      </mesh>
+
+      {/* Snout - short and cute */}
+      <mesh position={[0, 0.08, 0.38]}>
+        <sphereGeometry args={[0.18, 32, 32]} />
+        <meshStandardMaterial color={colors.furLight} roughness={0.85} />
+      </mesh>
+
+      {/* Nose - big shiny nose */}
+      <mesh position={[0, 0.12, 0.52]}>
         <sphereGeometry args={[0.08, 16, 16]} />
-        <meshStandardMaterial color={colors.noseColor} roughness={0.3} />
+        <meshStandardMaterial color={colors.nose} roughness={0.2} metalness={0.3} />
       </mesh>
 
-      {/* Eyes */}
+      {/* Eyebrows - expressive */}
+      <mesh position={[-0.18, 0.48, 0.3]} rotation={[0, 0, 0.3]}>
+        <capsuleGeometry args={[0.02, 0.08, 4, 8]} />
+        <meshStandardMaterial color={colors.eyebrow} roughness={0.8} />
+      </mesh>
+      <mesh position={[0.18, 0.48, 0.3]} rotation={[0, 0, -0.3]}>
+        <capsuleGeometry args={[0.02, 0.08, 4, 8]} />
+        <meshStandardMaterial color={colors.eyebrow} roughness={0.8} />
+      </mesh>
+
+      {/* Eyes - BIG adorable eyes */}
       <group>
         {/* Left eye */}
-        <mesh position={[-0.15, 0.45, 0.38]}>
-          <sphereGeometry args={[mood === 'sleeping' ? 0.02 : 0.08, 16, 16]} />
-          <meshStandardMaterial color={colors.eyeColor} />
-        </mesh>
-        {mood !== 'sleeping' && (
-          <mesh position={[-0.14, 0.47, 0.44]}>
-            <sphereGeometry args={[0.02, 8, 8]} />
-            <meshStandardMaterial color="white" emissive="white" emissiveIntensity={0.5} />
+        <group position={[-0.16, 0.32, 0.35]}>
+          {/* Eye white */}
+          <mesh>
+            <sphereGeometry args={[isAsleep ? 0.02 : 0.12, 32, 32]} />
+            <meshStandardMaterial color={colors.eyeWhite} roughness={0.3} />
           </mesh>
-        )}
+          {!isAsleep && (
+            <>
+              {/* Iris */}
+              <mesh position={[0, 0, 0.06]}>
+                <sphereGeometry args={[0.08, 32, 32]} />
+                <meshStandardMaterial color={colors.eyeIris} roughness={0.4} />
+              </mesh>
+              {/* Pupil */}
+              <mesh position={[0, 0, 0.1]}>
+                <sphereGeometry args={[0.04, 16, 16]} />
+                <meshStandardMaterial color={colors.eyePupil} />
+              </mesh>
+              {/* Shine - big sparkle */}
+              <mesh position={[0.03, 0.04, 0.11]}>
+                <sphereGeometry args={[0.025, 8, 8]} />
+                <meshStandardMaterial color={colors.eyeShine} emissive={colors.eyeShine} emissiveIntensity={0.8} />
+              </mesh>
+              {/* Small shine */}
+              <mesh position={[-0.02, -0.02, 0.11]}>
+                <sphereGeometry args={[0.012, 8, 8]} />
+                <meshStandardMaterial color={colors.eyeShine} emissive={colors.eyeShine} emissiveIntensity={0.5} />
+              </mesh>
+            </>
+          )}
+        </group>
 
         {/* Right eye */}
-        <mesh position={[0.15, 0.45, 0.38]}>
-          <sphereGeometry args={[mood === 'sleeping' ? 0.02 : 0.08, 16, 16]} />
-          <meshStandardMaterial color={colors.eyeColor} />
-        </mesh>
-        {mood !== 'sleeping' && (
-          <mesh position={[0.16, 0.47, 0.44]}>
-            <sphereGeometry args={[0.02, 8, 8]} />
-            <meshStandardMaterial color="white" emissive="white" emissiveIntensity={0.5} />
+        <group position={[0.16, 0.32, 0.35]}>
+          {/* Eye white */}
+          <mesh>
+            <sphereGeometry args={[isAsleep ? 0.02 : 0.12, 32, 32]} />
+            <meshStandardMaterial color={colors.eyeWhite} roughness={0.3} />
           </mesh>
-        )}
+          {!isAsleep && (
+            <>
+              {/* Iris */}
+              <mesh position={[0, 0, 0.06]}>
+                <sphereGeometry args={[0.08, 32, 32]} />
+                <meshStandardMaterial color={colors.eyeIris} roughness={0.4} />
+              </mesh>
+              {/* Pupil */}
+              <mesh position={[0, 0, 0.1]}>
+                <sphereGeometry args={[0.04, 16, 16]} />
+                <meshStandardMaterial color={colors.eyePupil} />
+              </mesh>
+              {/* Shine - big sparkle */}
+              <mesh position={[0.03, 0.04, 0.11]}>
+                <sphereGeometry args={[0.025, 8, 8]} />
+                <meshStandardMaterial color={colors.eyeShine} emissive={colors.eyeShine} emissiveIntensity={0.8} />
+              </mesh>
+              {/* Small shine */}
+              <mesh position={[-0.02, -0.02, 0.11]}>
+                <sphereGeometry args={[0.012, 8, 8]} />
+                <meshStandardMaterial color={colors.eyeShine} emissive={colors.eyeShine} emissiveIntensity={0.5} />
+              </mesh>
+            </>
+          )}
+        </group>
       </group>
 
-      {/* Cheeks */}
-      {(mood === 'smiling' || mood === 'love' || mood === 'excited') && (
+      {/* Rosy cheeks for happy moods */}
+      {isHappy && (
         <>
-          <mesh position={[-0.25, 0.3, 0.35]}>
-            <sphereGeometry args={[0.08, 16, 16]} />
-            <meshStandardMaterial color={colors.cheekColor} transparent opacity={0.6} />
+          <mesh position={[-0.3, 0.18, 0.32]}>
+            <sphereGeometry args={[0.06, 16, 16]} />
+            <meshStandardMaterial color={colors.cheek} transparent opacity={0.7} />
           </mesh>
-          <mesh position={[0.25, 0.3, 0.35]}>
-            <sphereGeometry args={[0.08, 16, 16]} />
-            <meshStandardMaterial color={colors.cheekColor} transparent opacity={0.6} />
+          <mesh position={[0.3, 0.18, 0.32]}>
+            <sphereGeometry args={[0.06, 16, 16]} />
+            <meshStandardMaterial color={colors.cheek} transparent opacity={0.7} />
           </mesh>
         </>
       )}
 
-      {/* Tongue (for smiling/excited) */}
-      {(mood === 'smiling' || mood === 'excited') && (
-        <mesh position={[0, 0.1, 0.55]} rotation={[0.3, 0, 0]}>
-          <capsuleGeometry args={[0.04, 0.1, 8, 16]} />
-          <meshStandardMaterial color={colors.tongueColor} roughness={0.5} />
+      {/* Mouth / Smile line */}
+      {!isAsleep && (
+        <mesh position={[0, 0.02, 0.48]} rotation={[0.2, 0, 0]}>
+          <torusGeometry args={[0.06, 0.015, 8, 16, Math.PI]} />
+          <meshStandardMaterial color={colors.nose} />
         </mesh>
       )}
 
-      {/* Ears */}
-      <mesh ref={earLeftRef} position={[-0.35, 0.6, 0]} rotation={[0, 0, -0.3]}>
-        <capsuleGeometry args={[0.1, 0.25, 8, 16]} />
-        <meshStandardMaterial color={colors.baseColor} roughness={0.7} />
-      </mesh>
-      <mesh ref={earRightRef} position={[0.35, 0.6, 0]} rotation={[0, 0, 0.3]}>
-        <capsuleGeometry args={[0.1, 0.25, 8, 16]} />
-        <meshStandardMaterial color={colors.baseColor} roughness={0.7} />
-      </mesh>
+      {/* Tongue - sticking out for happy moods */}
+      {isHappy && (
+        <mesh ref={tongueRef} position={[0, -0.05, 0.5]} rotation={[0.4, 0, 0]}>
+          <capsuleGeometry args={[0.04, 0.08, 8, 16]} />
+          <meshStandardMaterial color={colors.tongue} roughness={0.5} />
+        </mesh>
+      )}
 
-      {/* Tail */}
-      <mesh ref={tailRef} position={[0, -0.4, -0.5]} rotation={[0.5, 0, 0]}>
-        <capsuleGeometry args={[0.06, 0.3, 8, 16]} />
-        <meshStandardMaterial color={colors.baseColor} roughness={0.7} />
-      </mesh>
+      {/* Ears - big floppy golden retriever ears */}
+      <group>
+        {/* Left ear */}
+        <mesh ref={earLeftRef} position={[-0.38, 0.15, -0.05]} rotation={[0.3, 0.2, -0.4]}>
+          <capsuleGeometry args={[0.12, 0.25, 8, 16]} />
+          <meshStandardMaterial color={colors.furDark} roughness={0.9} />
+        </mesh>
+        {/* Left ear inner */}
+        <mesh position={[-0.35, 0.1, 0.02]} rotation={[0.3, 0.2, -0.4]}>
+          <capsuleGeometry args={[0.06, 0.12, 8, 16]} />
+          <meshStandardMaterial color={colors.innerEar} roughness={0.9} />
+        </mesh>
 
-      {/* Front paws */}
-      <mesh position={[-0.25, -0.75, 0.2]}>
-        <sphereGeometry args={[0.12, 16, 16]} />
-        <meshStandardMaterial color={colors.baseColor} roughness={0.7} />
+        {/* Right ear */}
+        <mesh ref={earRightRef} position={[0.38, 0.15, -0.05]} rotation={[0.3, -0.2, 0.4]}>
+          <capsuleGeometry args={[0.12, 0.25, 8, 16]} />
+          <meshStandardMaterial color={colors.furDark} roughness={0.9} />
+        </mesh>
+        {/* Right ear inner */}
+        <mesh position={[0.35, 0.1, 0.02]} rotation={[0.3, -0.2, 0.4]}>
+          <capsuleGeometry args={[0.06, 0.12, 8, 16]} />
+          <meshStandardMaterial color={colors.innerEar} roughness={0.9} />
+        </mesh>
+      </group>
+
+      {/* Tail - fluffy golden retriever tail */}
+      <group position={[0, -0.35, -0.4]}>
+        <mesh ref={tailRef} rotation={[-0.3, 0, 0]}>
+          <capsuleGeometry args={[0.08, 0.25, 8, 16]} />
+          <meshStandardMaterial color={colors.furDark} roughness={0.9} />
+        </mesh>
+        {/* Tail fluff */}
+        <mesh position={[0, 0.15, -0.08]} rotation={[-0.5, 0, 0]}>
+          <sphereGeometry args={[0.1, 16, 16]} />
+          <meshStandardMaterial color={colors.furMain} roughness={0.9} />
+        </mesh>
+      </group>
+
+      {/* Front paws - chubby and cute */}
+      <mesh position={[-0.18, -0.65, 0.15]}>
+        <sphereGeometry args={[0.1, 16, 16]} />
+        <meshStandardMaterial color={colors.furLight} roughness={0.9} />
       </mesh>
-      <mesh position={[0.25, -0.75, 0.2]}>
-        <sphereGeometry args={[0.12, 16, 16]} />
-        <meshStandardMaterial color={colors.baseColor} roughness={0.7} />
+      <mesh position={[0.18, -0.65, 0.15]}>
+        <sphereGeometry args={[0.1, 16, 16]} />
+        <meshStandardMaterial color={colors.furLight} roughness={0.9} />
+      </mesh>
+      {/* Paw pads hint */}
+      <mesh position={[-0.18, -0.7, 0.18]}>
+        <sphereGeometry args={[0.04, 8, 8]} />
+        <meshStandardMaterial color={colors.innerEar} roughness={0.7} />
+      </mesh>
+      <mesh position={[0.18, -0.7, 0.18]}>
+        <sphereGeometry args={[0.04, 8, 8]} />
+        <meshStandardMaterial color={colors.innerEar} roughness={0.7} />
       </mesh>
 
       {/* Back paws */}
-      <mesh position={[-0.3, -0.75, -0.2]}>
-        <sphereGeometry args={[0.12, 16, 16]} />
-        <meshStandardMaterial color={colors.baseColor} roughness={0.7} />
+      <mesh position={[-0.22, -0.65, -0.15]}>
+        <sphereGeometry args={[0.1, 16, 16]} />
+        <meshStandardMaterial color={colors.furLight} roughness={0.9} />
       </mesh>
-      <mesh position={[0.3, -0.75, -0.2]}>
-        <sphereGeometry args={[0.12, 16, 16]} />
-        <meshStandardMaterial color={colors.baseColor} roughness={0.7} />
+      <mesh position={[0.22, -0.65, -0.15]}>
+        <sphereGeometry args={[0.1, 16, 16]} />
+        <meshStandardMaterial color={colors.furLight} roughness={0.9} />
       </mesh>
     </group>
   );
@@ -198,30 +327,30 @@ function FloatingHearts() {
   
   useFrame((state) => {
     if (heartsRef.current) {
-      heartsRef.current.rotation.y = state.clock.elapsedTime * 0.5;
+      heartsRef.current.rotation.y = state.clock.elapsedTime * 0.3;
     }
   });
 
   return (
     <group ref={heartsRef}>
-      {[0, 1, 2].map((i) => (
+      {[0, 1, 2, 3].map((i) => (
         <Float
           key={i}
-          speed={2 + i}
-          rotationIntensity={0.5}
-          floatIntensity={1}
+          speed={2 + i * 0.5}
+          rotationIntensity={0.3}
+          floatIntensity={1.5}
           position={[
-            Math.sin((i * Math.PI * 2) / 3) * 0.8,
-            0.8 + i * 0.2,
-            Math.cos((i * Math.PI * 2) / 3) * 0.8
+            Math.sin((i * Math.PI * 2) / 4) * 0.7,
+            0.6 + i * 0.15,
+            Math.cos((i * Math.PI * 2) / 4) * 0.7
           ]}
         >
-          <mesh scale={0.1 + i * 0.02}>
+          <mesh scale={0.06 + i * 0.015}>
             <sphereGeometry args={[1, 8, 8]} />
             <meshStandardMaterial 
               color="#FF6B8A" 
               emissive="#FF6B8A"
-              emissiveIntensity={0.5}
+              emissiveIntensity={0.6}
             />
           </mesh>
         </Float>
@@ -236,30 +365,30 @@ function Sparkles() {
   
   useFrame((state) => {
     if (sparklesRef.current) {
-      sparklesRef.current.rotation.y = state.clock.elapsedTime * 2;
+      sparklesRef.current.rotation.y = state.clock.elapsedTime * 1.5;
     }
   });
 
   return (
     <group ref={sparklesRef}>
-      {[0, 1, 2, 3, 4].map((i) => (
+      {[0, 1, 2, 3, 4, 5].map((i) => (
         <Float
           key={i}
-          speed={3 + i}
-          rotationIntensity={2}
+          speed={4 + i}
+          rotationIntensity={3}
           floatIntensity={2}
           position={[
-            Math.sin((i * Math.PI * 2) / 5) * 1,
-            0.5 + Math.random() * 0.5,
-            Math.cos((i * Math.PI * 2) / 5) * 1
+            Math.sin((i * Math.PI * 2) / 6) * 0.9,
+            0.4 + (i % 3) * 0.25,
+            Math.cos((i * Math.PI * 2) / 6) * 0.9
           ]}
         >
-          <mesh scale={0.05}>
+          <mesh scale={0.04}>
             <octahedronGeometry args={[1, 0]} />
             <meshStandardMaterial 
-              color="#FFD700" 
-              emissive="#FFD700"
-              emissiveIntensity={1}
+              color={i % 2 === 0 ? '#FFD700' : '#FFF4B8'}
+              emissive={i % 2 === 0 ? '#FFD700' : '#FFF4B8'}
+              emissiveIntensity={1.2}
             />
           </mesh>
         </Float>
@@ -271,16 +400,28 @@ function Sparkles() {
 // Z's for sleeping mood
 function SleepingZs() {
   return (
-    <Float speed={1} rotationIntensity={0.2} floatIntensity={0.5} position={[0.6, 0.8, 0]}>
-      <mesh scale={0.15}>
-        <torusGeometry args={[1, 0.3, 8, 16]} />
-        <meshStandardMaterial 
-          color="#9CA3AF" 
-          transparent 
-          opacity={0.6}
-        />
-      </mesh>
-    </Float>
+    <>
+      <Float speed={0.8} rotationIntensity={0.2} floatIntensity={0.8} position={[0.5, 0.6, 0.2]}>
+        <mesh scale={0.08}>
+          <boxGeometry args={[1, 0.2, 0.1]} />
+          <meshStandardMaterial 
+            color="#A0AEC0" 
+            transparent 
+            opacity={0.7}
+          />
+        </mesh>
+      </Float>
+      <Float speed={0.6} rotationIntensity={0.15} floatIntensity={0.6} position={[0.65, 0.8, 0.15]}>
+        <mesh scale={0.06}>
+          <boxGeometry args={[1, 0.2, 0.1]} />
+          <meshStandardMaterial 
+            color="#A0AEC0" 
+            transparent 
+            opacity={0.5}
+          />
+        </mesh>
+      </Float>
+    </>
   );
 }
 
@@ -288,14 +429,16 @@ function SleepingZs() {
 function Scene({ mood }: Puppy3DProps) {
   return (
     <>
-      <ambientLight intensity={0.6} />
-      <directionalLight position={[5, 5, 5]} intensity={0.8} castShadow />
-      <pointLight position={[-5, 3, 5]} intensity={0.4} color="#FFE4C4" />
+      {/* Warm, soft lighting for cute aesthetic */}
+      <ambientLight intensity={0.8} color="#FFF8E7" />
+      <directionalLight position={[3, 5, 5]} intensity={1} color="#FFFFFF" castShadow />
+      <pointLight position={[-3, 2, 4]} intensity={0.5} color="#FFE4C4" />
+      <pointLight position={[0, -2, 3]} intensity={0.3} color="#FFF0DB" />
       
       <Float
-        speed={mood === 'sleeping' ? 0.5 : mood === 'excited' ? 3 : 1.5}
-        rotationIntensity={mood === 'sleeping' ? 0.1 : 0.3}
-        floatIntensity={mood === 'excited' ? 0.5 : 0.2}
+        speed={mood === 'sleeping' ? 0.3 : mood === 'excited' ? 2.5 : 1.2}
+        rotationIntensity={mood === 'sleeping' ? 0.05 : 0.15}
+        floatIntensity={mood === 'excited' ? 0.4 : 0.15}
       >
         <PuppyBody mood={mood} />
       </Float>
@@ -307,12 +450,14 @@ function Scene({ mood }: Puppy3DProps) {
       <OrbitControls 
         enableZoom={false} 
         enablePan={false}
-        minPolarAngle={Math.PI / 4}
-        maxPolarAngle={Math.PI / 2}
+        minPolarAngle={Math.PI / 3}
+        maxPolarAngle={Math.PI / 2.2}
+        minAzimuthAngle={-Math.PI / 4}
+        maxAzimuthAngle={Math.PI / 4}
         autoRotate
-        autoRotateSpeed={mood === 'excited' ? 4 : mood === 'sleeping' ? 0.5 : 1}
+        autoRotateSpeed={mood === 'excited' ? 3 : mood === 'sleeping' ? 0.3 : 0.8}
       />
-      <Environment preset="sunset" />
+      <Environment preset="apartment" />
     </>
   );
 }
@@ -320,7 +465,7 @@ function Scene({ mood }: Puppy3DProps) {
 export function Puppy3DModel({ mood }: Puppy3DProps) {
   return (
     <Canvas
-      camera={{ position: [0, 0, 3], fov: 50 }}
+      camera={{ position: [0, 0.2, 2.5], fov: 45 }}
       style={{ background: 'transparent' }}
       gl={{ antialias: true, alpha: true }}
     >
