@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Camera, Upload, Check, X, Dumbbell, Heart } from 'lucide-react';
+import { Camera, Upload, Check, X, Dumbbell, Heart, Undo2 } from 'lucide-react';
 import { Mission } from '@/types/app';
 import {
   Dialog,
@@ -16,8 +16,10 @@ import { toast } from 'sonner';
 interface MissionCompletionModalProps {
   mission: Mission | null;
   open: boolean;
+  isCompleted: boolean;
   onClose: () => void;
   onComplete: (missionId: string) => void;
+  onCancel: (missionId: string) => void;
 }
 
 const moodEmojis = [
@@ -38,7 +40,7 @@ const exerciseTypes = [
   { icon: '🏋️', label: 'Exercises' },
 ];
 
-export function MissionCompletionModal({ mission, open, onClose, onComplete }: MissionCompletionModalProps) {
+export function MissionCompletionModal({ mission, open, isCompleted, onClose, onComplete, onCancel }: MissionCompletionModalProps) {
   const { user } = useAuth();
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [selectedExercise, setSelectedExercise] = useState<string | null>(null);
@@ -96,6 +98,57 @@ export function MissionCompletionModal({ mission, open, onClose, onComplete }: M
   };
 
   if (!mission) return null;
+
+  // Show cancel UI for completed missions
+  if (isCompleted) {
+    return (
+      <Dialog open={open} onOpenChange={resetAndClose}>
+        <DialogContent className="max-w-md mx-4 rounded-3xl p-6">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold flex items-center gap-3">
+              <span className="text-4xl">{mission.icon}</span>
+              {mission.title}
+            </DialogTitle>
+          </DialogHeader>
+          
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-6"
+          >
+            <div className="text-center py-8">
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                className="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-4"
+              >
+                <Check className="w-10 h-10 text-green-600" strokeWidth={3} />
+              </motion.div>
+              <p className="text-xl text-muted-foreground">
+                This mission is completed! 🎉
+              </p>
+              <p className="text-sm text-muted-foreground/70 mt-2">
+                Need to undo this?
+              </p>
+            </div>
+            
+            <Button
+              variant="outline"
+              className="w-full h-16 text-xl rounded-2xl border-destructive text-destructive hover:bg-destructive/10"
+              onClick={() => {
+                onCancel(mission.id);
+                resetAndClose();
+              }}
+            >
+              <Undo2 className="w-6 h-6 mr-2" />
+              Cancel Mission
+            </Button>
+          </motion.div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   const renderMissionContent = () => {
     switch (mission.type) {

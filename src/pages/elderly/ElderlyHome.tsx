@@ -105,15 +105,40 @@ function ElderlyHomeContent() {
   };
 
   const handleMissionClick = (mission: Mission) => {
-    if (completedMissionTypes.has(mission.type)) return;
     setSelectedMission(mission);
   };
 
-  const handleMissionComplete = (missionId: string) => {
+  const handleMissionComplete = async (missionId: string) => {
     const mission = elderlyProfile.missions.find(m => m.id === missionId);
     if (mission) {
       setCompletedMissionTypes(prev => new Set([...prev, mission.type]));
       completeMission(missionId);
+    }
+  };
+
+  const handleMissionCancel = async (missionId: string) => {
+    if (!user) return;
+    const mission = elderlyProfile.missions.find(m => m.id === missionId);
+    if (mission) {
+      // Remove from local state
+      setCompletedMissionTypes(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(mission.type);
+        return newSet;
+      });
+      
+      // Delete from database
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      await supabase
+        .from('mission_completions')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('mission_type', mission.type)
+        .gte('completed_at', today.toISOString());
+      
+      completeMission(missionId); // Toggle off in app context
     }
   };
 
@@ -192,8 +217,10 @@ function ElderlyHomeContent() {
       <MissionCompletionModal
         mission={selectedMission}
         open={!!selectedMission}
+        isCompleted={selectedMission ? completedMissionTypes.has(selectedMission.type) : false}
         onClose={() => setSelectedMission(null)}
         onComplete={handleMissionComplete}
+        onCancel={handleMissionCancel}
       />
 
       {/* Heart Button */}
