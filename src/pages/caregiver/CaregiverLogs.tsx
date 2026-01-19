@@ -425,7 +425,7 @@ function CaregiverLogsContent() {
                             ? 'bg-yellow-100 text-yellow-700'
                             : 'bg-red-100 text-red-700'
                       }`}>
-                        {stat.count}/5
+                        {stat.count}/4
                       </span>
                     </motion.div>
                   ))}
