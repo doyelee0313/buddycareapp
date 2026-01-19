@@ -57,7 +57,25 @@ serve(async (req) => {
     if (!response.ok) {
       const errorText = await response.text();
       console.error("ElevenLabs API error:", response.status, errorText);
-      throw new Error(`ElevenLabs API error: ${response.status}`);
+      
+      // Return specific error for quota exceeded so frontend can fallback gracefully
+      if (response.status === 401 && errorText.includes("quota_exceeded")) {
+        return new Response(
+          JSON.stringify({ error: "quota_exceeded", fallback: true }),
+          {
+            status: 402,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
+      }
+      
+      return new Response(
+        JSON.stringify({ error: "tts_unavailable", fallback: true }),
+        {
+          status: 503,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
     }
 
     const audioBuffer = await response.arrayBuffer();
